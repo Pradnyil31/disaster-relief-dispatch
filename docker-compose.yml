@@ -1,0 +1,60 @@
+name: disaster_relief_dispatch
+
+services:
+  # -------------------------------------------------------------
+  # React Frontend Container (Active)
+  # -------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: disaster_relief_frontend
+    ports:
+      - "80:80"
+    restart: always
+    networks:
+      - relief-network
+
+  # -------------------------------------------------------------
+  # Spring Boot Backend Container (Pluggable Template - Future)
+  # -------------------------------------------------------------
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   container_name: disaster_relief_backend
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/disaster_relief_db?useSSL=false&allowPublicKeyRetrieval=true
+  #     SPRING_DATASOURCE_USERNAME: appuser
+  #     SPRING_DATASOURCE_PASSWORD: apppassword
+  #   depends_on:
+  #     - db
+  #   networks:
+  #     - relief-network
+
+  # -------------------------------------------------------------
+  # MySQL Database Container (Pluggable Template - Future)
+  # -------------------------------------------------------------
+  # db:
+  #   image: mysql:8.0
+  #   container_name: disaster_relief_db
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: rootpassword
+  #     MYSQL_DATABASE: disaster_relief_db
+  #     MYSQL_USER: appuser
+  #     MYSQL_PASSWORD: apppassword
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - mysql-data:/var/lib/mysql
+  #   networks:
+  #     - relief-network
+
+networks:
+  relief-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
