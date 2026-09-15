@@ -36,6 +36,11 @@ yarn-error.log*
 *.sln
 *.sw?
 
+# Documentation Exclusions
+docs/
+CHANGES_AND_PROBLEMS.md
+kilo.jsonc
+
 # OS System Files
 .DS_Store
 Thumbs.db
