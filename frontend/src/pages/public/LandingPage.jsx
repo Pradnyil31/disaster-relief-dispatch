@@ -52,9 +52,16 @@ export function LandingPage() {
                       </div>
                       <span className="badge badge-urgency-high">High Urgency</span>
                     </div>
-                    <div className="skeleton mb-3" style={{ height: '8px', width: '100%' }}></div>
-                    <div className="skeleton mb-3" style={{ height: '8px', width: '80%' }}></div>
-                    <div className="skeleton" style={{ height: '8px', width: '60%' }}></div>
+                    <div className="bg-light p-3 rounded-3 border mb-3">
+                      <div className="text-dark small mb-1">
+                        <i className="bi bi-geo-alt-fill text-danger me-1"></i>
+                        <strong>Location:</strong> Kurla West, Mumbai (Lat: 19.076, Lng: 72.877)
+                      </div>
+                      <div className="text-muted small">
+                        <i className="bi bi-info-circle me-1"></i>
+                        Water level rising rapidly. Family of 4 trapped on ground floor requires urgent evacuation & drinking water.
+                      </div>
+                    </div>
                     <div className="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
                       <span className="badge badge-status-assigned"><i className="bi bi-person-check me-1"></i> Volunteer Assigned</span>
                       <small className="text-muted">2 mins ago</small>
