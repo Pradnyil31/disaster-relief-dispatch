@@ -1,0 +1,61 @@
+:root {
+  /* Premium HSL Color Palette */
+  --er-primary-hue: 221;
+  --er-primary-sat: 83%;
+  
+  --er-red-50: #fef2f2;
+  --er-red-100: #fee2e2;
+  --er-red-500: #ef4444;
+  --er-red-600: #dc2626;
+  --er-red-700: #b91c1c;
+
+  --er-orange-50: #fff7ed;
+  --er-orange-100: #ffedd5;
+  --er-orange-500: #f97316;
+  --er-orange-600: #ea580c;
+  --er-orange-700: #c2410c;
+
+  --er-green-50: #f0fdf4;
+  --er-green-100: #dcfce7;
+  --er-green-500: #22c55e;
+  --er-green-600: #16a34a;
+  --er-green-700: #15803d;
+
+  --er-blue-50: #eff6ff;
+  --er-blue-100: #dbeafe;
+  --er-blue-500: #3b82f6;
+  --er-blue-600: #2563eb;
+  --er-blue-700: #1d4ed8;
+
+  --er-gray-50: #f8fafc;
+  --er-gray-100: #f1f5f9;
+  --er-gray-200: #e2e8f0;
+  --er-gray-300: #cbd5e1;
+  --er-gray-500: #64748b;
+  --er-gray-700: #334155;
+  --er-gray-800: #1e293b;
+  --er-gray-900: #0f172a;
+
+  /* Bootstrap Variable Overrides */
+  --bs-primary: var(--er-blue-600);
+  --bs-primary-rgb: 37, 99, 235;
+  --bs-success: var(--er-green-600);
+  --bs-success-rgb: 22, 163, 74;
+  --bs-info: var(--er-blue-500);
+  --bs-warning: var(--er-orange-500);
+  --bs-warning-rgb: 249, 115, 22;
+  --bs-danger: var(--er-red-600);
+  --bs-danger-rgb: 220, 38, 38;
+  
+  --bs-body-font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --bs-body-bg: var(--er-gray-50);
+  --bs-body-color: var(--er-gray-800);
+  
+  --bs-border-color: var(--er-gray-200);
+  
+  /* Custom Shadows */
+  --er-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --er-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --er-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --er-shadow-hover: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}

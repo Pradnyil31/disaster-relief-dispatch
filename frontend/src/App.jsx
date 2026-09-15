@@ -1,7 +1,15 @@
-export default function App() {
+import { AuthProvider } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
+import { AppRoutes } from './routes/AppRoutes';
+
+function App() {
   return (
-    <div>
-      <h1>Emergency Dispatch System</h1>
-    </div>
-  )
+    <AuthProvider>
+      <NotificationProvider>
+        <AppRoutes />
+      </NotificationProvider>
+    </AuthProvider>
+  );
 }
+
+export default App;
