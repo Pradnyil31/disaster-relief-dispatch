@@ -87,18 +87,18 @@ export function SubmitSOSPage() {
   return (
     <div className="min-vh-100 bg-light animate-fade-in">
       {/* Navbar */}
-      <nav className="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
-        <div className="container">
-          <Link className="navbar-brand d-flex align-items-center gap-2 fw-bold" to="/citizen">
-            <i className="bi bi-shield-check"></i>
-            Citizen Portal
+      <nav className="navbar navbar-dark bg-primary sticky-top shadow-sm py-2">
+        <div className="container d-flex align-items-center justify-content-between flex-nowrap">
+          <Link className="navbar-brand d-flex align-items-center gap-2 fw-bold text-truncate me-2" to="/citizen">
+            <i className="bi bi-shield-check text-warning flex-shrink-0"></i>
+            <span className="text-truncate">Citizen Portal</span>
           </Link>
-          <div className="navbar-nav ms-auto align-items-center gap-3">
-            <div className="d-flex align-items-center gap-2 text-white bg-white bg-opacity-10 px-3 py-1 rounded-pill">
+          <div className="d-flex align-items-center gap-2 flex-shrink-0">
+            <div className="d-none d-sm-flex align-items-center gap-2 text-white bg-white bg-opacity-10 px-3 py-1 rounded-pill">
               <i className="bi bi-person-circle"></i>
-              <span className="fw-medium">{user?.name}</span>
+              <span className="fw-medium text-truncate" style={{ maxWidth: '120px' }}>{user?.name}</span>
             </div>
-            <button type="button" className="btn btn-outline-light btn-sm px-3 rounded-pill" onClick={logout}>
+            <button type="button" className="btn btn-outline-light btn-sm px-2 px-sm-3 rounded-pill" onClick={logout}>
               Logout
             </button>
           </div>

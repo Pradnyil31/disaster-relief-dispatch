@@ -35,23 +35,23 @@ export function DonorDashboard() {
   return (
     <div className="min-vh-100 bg-light animate-fade-in">
       {/* Top Navbar */}
-      <nav className="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm glass">
-        <div className="container max-w-6xl">
-          <Link className="navbar-brand d-flex align-items-center gap-2 fw-bold" to="/donor">
+      <nav className="navbar navbar-dark bg-primary sticky-top shadow-sm glass py-2">
+        <div className="container max-w-6xl d-flex align-items-center justify-content-between flex-nowrap">
+          <Link className="navbar-brand d-flex align-items-center gap-2 fw-bold fs-6 fs-sm-5 mb-0" to="/donor">
             <i className="bi bi-heart-fill text-warning"></i>
             <span>Donor Portal</span>
           </Link>
-          <div className="navbar-nav ms-auto align-items-center gap-2">
-            <Link to="/donor/donations" className="btn btn-outline-light btn-sm rounded-pill px-3 me-2">
-              <i className="bi bi-receipt me-1"></i> My History
+          <div className="d-flex align-items-center gap-2">
+            <Link to="/donor/donations" className="btn btn-outline-light btn-sm rounded-pill px-2 px-sm-3 me-1 fs-7">
+              <i className="bi bi-receipt me-1"></i> <span className="d-none d-sm-inline">My History</span>
             </Link>
-            <div className="d-flex align-items-center gap-2 text-white bg-white bg-opacity-10 px-3 py-1 rounded-pill">
+            <div className="d-none d-md-flex align-items-center gap-2 text-white bg-white bg-opacity-10 px-3 py-1 rounded-pill fs-7">
               <i className="bi bi-person-circle"></i>
-              <span className="fw-medium">{user?.name || 'Donor'}</span>
+              <span className="fw-medium text-truncate" style={{ maxWidth: '120px' }}>{user?.name || 'Donor'}</span>
             </div>
             <button
               type="button"
-              className="btn btn-outline-light btn-sm px-3 rounded-pill hover-lift me-1"
+              className="btn btn-outline-light btn-sm px-3 rounded-pill hover-lift fs-7 fw-semibold"
               onClick={logout}
             >
               Logout

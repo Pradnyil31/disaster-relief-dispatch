@@ -3,15 +3,15 @@ import { Link } from 'react-router-dom';
 export function LandingPage() {
   return (
     <div className="min-vh-100 d-flex flex-column animate-fade-in">
-      <nav className="navbar navbar-expand-lg navbar-dark bg-primary fixed-top glass" style={{ border: 'none', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        <div className="container">
-          <Link className="navbar-brand d-flex align-items-center gap-2" to="/">
-            <i className="bi bi-shield-check fs-4 text-white"></i>
-            Disaster Relief Coordinator
+      <nav className="navbar navbar-dark bg-primary fixed-top glass py-2" style={{ border: 'none', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+        <div className="container d-flex align-items-center justify-content-between flex-nowrap">
+          <Link className="navbar-brand d-flex align-items-center gap-2 me-2 text-truncate fw-bold" to="/">
+            <i className="bi bi-shield-check fs-4 text-warning flex-shrink-0"></i>
+            <span className="text-truncate">Disaster Relief</span>
           </Link>
-          <div className="navbar-nav ms-auto gap-2">
-            <Link className="nav-link text-white" to="/login">Login</Link>
-            <Link className="btn btn-outline-light btn-sm px-3 hover-lift" to="/register">Register</Link>
+          <div className="d-flex align-items-center gap-2 flex-shrink-0">
+            <Link className="btn btn-outline-light btn-sm px-3 rounded-pill" to="/login">Login</Link>
+            <Link className="btn btn-light text-primary btn-sm px-3 fw-bold rounded-pill shadow-sm hover-lift" to="/register">Register</Link>
           </div>
         </div>
       </nav>

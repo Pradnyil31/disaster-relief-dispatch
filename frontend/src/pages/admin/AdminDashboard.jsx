@@ -49,20 +49,20 @@ export function AdminDashboard() {
 
   return (
     <div className="min-vh-100 bg-light animate-fade-in">
-      <nav className="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm glass">
-        <div className="container max-w-6xl">
-          <Link className="navbar-brand d-flex align-items-center gap-2 fw-bold" to="/admin">
+      <nav className="navbar navbar-dark bg-primary sticky-top shadow-sm glass py-2">
+        <div className="container max-w-6xl d-flex align-items-center justify-content-between flex-nowrap">
+          <Link className="navbar-brand d-flex align-items-center gap-2 fw-bold fs-6 fs-sm-5 mb-0" to="/admin">
             <i className="bi bi-shield-lock-fill text-warning"></i>
-            Admin Command Center
+            <span>Admin Command Center</span>
           </Link>
-          <div className="navbar-nav ms-auto align-items-center gap-3">
-            <div className="d-flex align-items-center gap-2 text-white bg-white bg-opacity-10 px-3 py-1 rounded-pill">
+          <div className="d-flex align-items-center gap-2">
+            <div className="d-none d-sm-flex align-items-center gap-2 text-white bg-white bg-opacity-10 px-3 py-1 rounded-pill fs-7">
               <i className="bi bi-person-badge"></i>
-              <span className="fw-medium">{user?.name || 'Administrator'}</span>
+              <span className="fw-medium text-truncate" style={{ maxWidth: '120px' }}>{user?.name || 'Admin'}</span>
             </div>
             <button
               type="button"
-              className="btn btn-outline-light btn-sm px-3 rounded-pill hover-lift"
+              className="btn btn-outline-light btn-sm px-3 rounded-pill hover-lift fs-7 fw-semibold"
               onClick={logout}
             >
               Logout
