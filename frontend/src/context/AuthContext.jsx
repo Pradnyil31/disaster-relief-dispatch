@@ -20,37 +20,41 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = useCallback(async (credentials) => {
-    // MOCK LOGIN FOR DEVELOPMENT
-    console.warn('Using MOCK authentication');
+    const response = await authApi.login(credentials);
+    const data = response.data;
     
-    // Determine role based on email for testing different dashboards
-    let role = ROLES.CITIZEN;
-    if (credentials.email.includes('admin')) role = ROLES.ADMINISTRATOR;
-    if (credentials.email.includes('volunteer')) role = ROLES.VOLUNTEER;
-    if (credentials.email.includes('donor')) role = ROLES.DONOR;
-
-    const mockUser = {
-      id: 1,
-      name: 'Test User',
-      email: credentials.email,
-      role: role
+    const userData = {
+      id: data.userId,
+      name: data.name,
+      email: data.email,
+      role: data.role
     };
     
-    setToken('mock-jwt-token-123');
-    setUser(mockUser);
-    localStorage.setItem('token', 'mock-jwt-token-123');
-    localStorage.setItem('user', JSON.stringify(mockUser));
+    setToken(data.token);
+    setUser(userData);
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(userData));
     
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return mockUser;
+    return userData;
   }, []);
 
   const register = useCallback(async (data) => {
-    // MOCK REGISTER FOR DEVELOPMENT
-    console.warn('Using MOCK authentication');
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return { success: true };
+    const response = await authApi.register(data);
+    const resData = response.data;
+    
+    const userData = {
+      id: resData.userId,
+      name: resData.name,
+      email: resData.email,
+      role: resData.role
+    };
+    
+    setToken(resData.token);
+    setUser(userData);
+    localStorage.setItem('token', resData.token);
+    localStorage.setItem('user', JSON.stringify(userData));
+    
+    return userData;
   }, []);
 
   const logout = useCallback(() => {

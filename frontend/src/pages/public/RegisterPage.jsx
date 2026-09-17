@@ -19,9 +19,8 @@ export function RegisterPage() {
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      await registerUser(data);
-      notify({ message: 'Registration successful. Please login.', severity: 'success' });
-      navigate('/login', { replace: true });
+      const user = await registerUser(data);
+      notify({ message: `Registration successful! Welcome, ${user?.name || 'User'}.`, severity: 'success' });
     } catch (err) {
       notify({ message: err.message || 'Registration failed', severity: 'error' });
     } finally {
