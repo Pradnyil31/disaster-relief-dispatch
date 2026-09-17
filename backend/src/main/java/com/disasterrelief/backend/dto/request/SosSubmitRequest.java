@@ -1,0 +1,18 @@
+package com.disasterrelief.backend.dto.request;
+
+import com.disasterrelief.backend.model.UrgencyLevel;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+@Data
+public class SosSubmitRequest {
+
+    @NotNull(message = "Urgency level is required")
+    private UrgencyLevel urgencyLevel;
+
+    private Double latitude;
+    private Double longitude;
+    private String locationAddress;
+    private String suppliesNeeded;
+    private String phoneNumber;
+}
