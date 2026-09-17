@@ -2,9 +2,58 @@ name: disaster_relief_dispatch
 
 services:
   # -------------------------------------------------------------
-  # React Frontend Container (Active)
+  # MySQL Database Container (MySQL 8.0)
+  # -------------------------------------------------------------
+  db:
+    image: mysql:8.0
+    container_name: disaster_relief_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: disaster_relief_db
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - relief-network
+
+  # -------------------------------------------------------------
+  # Spring Boot Backend Container (Port 8080)
+  # -------------------------------------------------------------
+  backend:
+    image: disaster_relief_backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: disaster_relief_backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/disaster_relief_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: appuser
+      SPRING_DATASOURCE_PASSWORD: apppassword
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.MySQLDialect
+      JWT_SECRET: DisasterReliefSuperSecretSigningKeyForJwtTokens2026MustBeAtLeast32BytesLong
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - relief-network
+
+  # -------------------------------------------------------------
+  # React Frontend Container (Port 80)
   # -------------------------------------------------------------
   frontend:
+    image: disaster_relief_frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -12,45 +61,10 @@ services:
     ports:
       - "80:80"
     restart: always
+    depends_on:
+      - backend
     networks:
       - relief-network
-
-  # -------------------------------------------------------------
-  # Spring Boot Backend Container (Pluggable Template - Future)
-  # -------------------------------------------------------------
-  # backend:
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   container_name: disaster_relief_backend
-  #   ports:
-  #     - "8080:8080"
-  #   environment:
-  #     SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/disaster_relief_db?useSSL=false&allowPublicKeyRetrieval=true
-  #     SPRING_DATASOURCE_USERNAME: appuser
-  #     SPRING_DATASOURCE_PASSWORD: apppassword
-  #   depends_on:
-  #     - db
-  #   networks:
-  #     - relief-network
-
-  # -------------------------------------------------------------
-  # MySQL Database Container (Pluggable Template - Future)
-  # -------------------------------------------------------------
-  # db:
-  #   image: mysql:8.0
-  #   container_name: disaster_relief_db
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: rootpassword
-  #     MYSQL_DATABASE: disaster_relief_db
-  #     MYSQL_USER: appuser
-  #     MYSQL_PASSWORD: apppassword
-  #   ports:
-  #     - "3306:3306"
-  #   volumes:
-  #     - mysql-data:/var/lib/mysql
-  #   networks:
-  #     - relief-network
 
 networks:
   relief-network:
