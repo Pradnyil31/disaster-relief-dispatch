@@ -1,0 +1,271 @@
+{
+  "info": {
+    "_postman_id": "disaster-relief-coordinator-api-v1",
+    "name": "Disaster Relief Coordinator API",
+    "description": "Complete Postman Collection covering all 5 modules of the Disaster Relief Coordinator Backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01. Authentication (IAM)",
+      "item": [
+        {
+          "name": "Register Citizen User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Citizen\",\n  \"email\": \"citizen@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"CITIZEN\",\n  \"phone\": \"+1234567890\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Register Admin User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"System Administrator\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"adminpassword123\",\n  \"role\": \"ADMINISTRATOR\",\n  \"phone\": \"+19998887777\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Register Volunteer User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Volunteer Hero\",\n  \"email\": \"volunteer@example.com\",\n  \"password\": \"volpass123\",\n  \"role\": \"VOLUNTEER\",\n  \"phone\": \"+18883334444\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"citizen@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. SOS Emergency Requests",
+      "item": [
+        {
+          "name": "Simulate Twilio SMS Webhook (Public)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "From", "value": "+15551234567" },
+                { "key": "Body", "value": "CRITICAL emergency trapped in flood water near River Bridge" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/sos/webhook/sms", "host": ["{{baseUrl}}"], "path": ["sos", "webhook", "sms"] }
+          }
+        },
+        {
+          "name": "Submit Web SOS Request (Citizen)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{citizenToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"urgencyLevel\": \"HIGH\",\n  \"latitude\": 37.7749,\n  \"longitude\": -122.4194,\n  \"locationAddress\": \"123 Main St, Sector 4\",\n  \"suppliesNeeded\": \"Water, First Aid Kit, Blankets\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/sos", "host": ["{{baseUrl}}"], "path": ["sos"] }
+          }
+        },
+        {
+          "name": "Get All SOS Requests (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/sos?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["sos"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "10" }] }
+          }
+        },
+        {
+          "name": "Get My SOS Requests (Citizen)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{citizenToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/sos/my", "host": ["{{baseUrl}}"], "path": ["sos", "my"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. Inventory Management",
+      "item": [
+        {
+          "name": "Create Inventory Item (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"First Aid Kit\",\n  \"category\": \"MEDICAL\",\n  \"quantity\": 150,\n  \"unit\": \"boxes\",\n  \"minimumThreshold\": 20\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/inventory", "host": ["{{baseUrl}}"], "path": ["inventory"] }
+          }
+        },
+        {
+          "name": "Get All Inventory Items (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/inventory?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["inventory"] }
+          }
+        },
+        {
+          "name": "Filter Low-Stock Alert Items (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/inventory?lowStock=true", "host": ["{{baseUrl}}"], "path": ["inventory"], "query": [{ "key": "lowStock", "value": "true" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04. Volunteer Dispatch",
+      "item": [
+        {
+          "name": "Create Dispatch Task (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sosRequestId\": 1,\n  \"volunteerId\": 3,\n  \"inventoryItemId\": 1,\n  \"quantityDeducted\": 15,\n  \"notes\": \"Deliver 15 ration packs urgently.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/dispatch", "host": ["{{baseUrl}}"], "path": ["dispatch"] }
+          }
+        },
+        {
+          "name": "Get My Assigned Dispatch Tasks (Volunteer)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{volunteerToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/dispatch/my", "host": ["{{baseUrl}}"], "path": ["dispatch", "my"] }
+          }
+        },
+        {
+          "name": "Update Task Status to EN_ROUTE (Volunteer)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{volunteerToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"EN_ROUTE\",\n  \"notes\": \"Picked up supplies, heading to location.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/dispatch/1/status", "host": ["{{baseUrl}}"], "path": ["dispatch", "1", "status"] }
+          }
+        },
+        {
+          "name": "Update Task Status to DELIVERED (Volunteer)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{volunteerToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"DELIVERED\",\n  \"notes\": \"Successfully delivered supplies to citizen.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/dispatch/1/status", "host": ["{{baseUrl}}"], "path": ["dispatch", "1", "status"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05. Donations & Payments",
+      "item": [
+        {
+          "name": "Pledge Monetary Donation (Razorpay Gateway)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"MONETARY\",\n  \"amount\": 5000.00\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/donations/pledge", "host": ["{{baseUrl}}"], "path": ["donations", "pledge"] }
+          }
+        },
+        {
+          "name": "Pledge Physical Supply Donation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"PHYSICAL\",\n  \"itemName\": \"Heavy Duty Blankets\",\n  \"quantity\": 50\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/donations/pledge", "host": ["{{baseUrl}}"], "path": ["donations", "pledge"] }
+          }
+        },
+        {
+          "name": "Approve Physical Donation (Admin Auto Inventory Sync)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/donations/2/approve", "host": ["{{baseUrl}}"], "path": ["donations", "2", "approve"] }
+          }
+        }
+      ]
+    }
+  ]
+}
