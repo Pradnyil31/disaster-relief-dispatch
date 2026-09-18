@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema } from '../../utils/validators';
 import { useAuthContext } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
+import { REGISTERABLE_ROLES } from '../../utils/constants';
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -128,9 +129,11 @@ export function RegisterPage() {
                   disabled={loading}
                 >
                   <option value="">Select your role</option>
-                  <option value="CITIZEN">Citizen (Request Help)</option>
-                  <option value="VOLUNTEER">Volunteer (Deliver Aid)</option>
-                  <option value="DONOR">Donor (Contribute)</option>
+                  {REGISTERABLE_ROLES.map((role) => (
+                    <option key={role} value={role}>
+                      {role === 'CITIZEN' ? 'Citizen (Request Help)' : role === 'VOLUNTEER' ? 'Volunteer (Deliver Aid)' : 'Donor (Contribute)'}
+                    </option>
+                  ))}
                 </select>
                 {errors.role && <div className="invalid-feedback">{errors.role.message}</div>}
               </div>

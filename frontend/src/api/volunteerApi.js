@@ -20,11 +20,33 @@ function saveStoredVolunteers(data) {
   localStorage.setItem('mock_volunteers', JSON.stringify(data));
 }
 
+export function normalizeVolunteer(v) {
+  if (!v) return v;
+  return {
+    ...v,
+    id: v.id !== undefined && v.id !== null ? String(v.id) : '',
+    name: v.name || 'Volunteer',
+    email: v.email || '',
+    phone: v.phone || v.phoneNumber || '',
+    status: v.status || 'AVAILABLE',
+    zone: v.zone || 'General',
+  };
+}
+
 export const volunteerApi = {
   list: async (params = {}) => {
     try {
       const res = await axiosClient.get('/volunteers', { params });
-      return res.data;
+      const rawList = Array.isArray(res.data) ? res.data : (res.data?.content || []);
+      let items = rawList.map(normalizeVolunteer);
+      if (params.status && params.status !== 'ALL') {
+        items = items.filter(v => v.status === params.status);
+      }
+      if (params.search) {
+        const q = params.search.toLowerCase();
+        items = items.filter(v => v.name.toLowerCase().includes(q) || v.zone.toLowerCase().includes(q));
+      }
+      return { content: items, totalElements: items.length, totalPages: 1, number: 0 };
     } catch {
       let items = getStoredVolunteers();
       if (params.status && params.status !== 'ALL') {
@@ -34,21 +56,21 @@ export const volunteerApi = {
         const q = params.search.toLowerCase();
         items = items.filter(v => v.name.toLowerCase().includes(q) || v.zone.toLowerCase().includes(q));
       }
-      return { content: items, totalElements: items.length, totalPages: 1, number: 0 };
+      return { content: items.map(normalizeVolunteer), totalElements: items.length, totalPages: 1, number: 0 };
     }
   },
 
   updateStatus: async (id, status) => {
     try {
       const res = await axiosClient.patch(`/volunteers/${id}/status`, { status });
-      return res.data;
+      return normalizeVolunteer(res.data);
     } catch {
       const items = getStoredVolunteers();
-      const idx = items.findIndex(v => v.id === id);
+      const idx = items.findIndex(v => String(v.id) === String(id));
       if (idx !== -1) {
         items[idx].status = status;
         saveStoredVolunteers(items);
-        return items[idx];
+        return normalizeVolunteer(items[idx]);
       }
       throw new Error('Volunteer not found');
     }

@@ -5,6 +5,12 @@ export const ROLES = {
   DONOR: 'DONOR',
 };
 
+export const REGISTERABLE_ROLES = [
+  ROLES.CITIZEN,
+  ROLES.VOLUNTEER,
+  ROLES.DONOR,
+];
+
 export const URGENCY_LEVELS = ['HIGH', 'MEDIUM', 'LOW'];
 
 export const DISPATCH_STATUS = ['ASSIGNED', 'EN_ROUTE', 'DELIVERED'];
