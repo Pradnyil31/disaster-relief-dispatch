@@ -27,10 +27,10 @@ export function AdminDashboard() {
           donationApi.list({ status: 'PENDING' }),
         ]);
 
-        const pendingSos = sosRes?.content ? sosRes.content.filter(s => s.status === 'PENDING').length : (sosRes?.length || 0);
-        const activeDispatches = dispatchRes?.content ? dispatchRes.content.filter(d => d.status === 'ASSIGNED' || d.status === 'EN_ROUTE').length : 0;
-        const lowStockCount = Array.isArray(invLow) ? invLow.length : 0;
-        const pendingDonations = donRes?.content ? donRes.content.filter(d => d.status === 'PENDING').length : 0;
+        const pendingSos = sosRes?.content ? sosRes.content.filter(s => s.status === 'PENDING').length : (Array.isArray(sosRes) ? sosRes.filter(s => s.status === 'PENDING').length : 0);
+        const activeDispatches = dispatchRes?.content ? dispatchRes.content.filter(d => d.status === 'ASSIGNED' || d.status === 'EN_ROUTE').length : (Array.isArray(dispatchRes) ? dispatchRes.filter(d => d.status === 'ASSIGNED' || d.status === 'EN_ROUTE').length : 0);
+        const lowStockCount = Array.isArray(invLow) ? invLow.length : (invLow?.content ? invLow.content.length : 0);
+        const pendingDonations = donRes?.content ? donRes.content.filter(d => d.status === 'PENDING').length : (Array.isArray(donRes) ? donRes.filter(d => d.status === 'PENDING').length : 0);
 
         setStats({
           pendingSos,
