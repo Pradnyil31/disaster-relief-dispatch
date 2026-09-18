@@ -22,11 +22,31 @@ function saveStoredInventory(data) {
   localStorage.setItem('mock_inventory', JSON.stringify(data));
 }
 
+export function normalizeInventory(item) {
+  if (!item) return item;
+  return {
+    ...item,
+    id: item.id !== undefined && item.id !== null ? String(item.id) : '',
+    name: item.name || '',
+    category: item.category || 'OTHER',
+    quantity: item.quantity ?? 0,
+    minimumThreshold: item.minimumThreshold ?? item.threshold ?? 0,
+    unit: item.unit || 'Units',
+  };
+}
+
 export const inventoryApi = {
   list: async (params = {}) => {
     try {
       const res = await axiosClient.get('/inventory', { params });
-      return res.data;
+      const rawContent = res.data?.content || (Array.isArray(res.data) ? res.data : []);
+      const normalizedContent = rawContent.map(normalizeInventory);
+      return {
+        content: normalizedContent,
+        totalElements: res.data?.totalElements ?? normalizedContent.length,
+        totalPages: res.data?.totalPages ?? 1,
+        number: res.data?.number ?? 0,
+      };
     } catch {
       let items = getStoredInventory();
       if (params.category && params.category !== 'ALL') {
@@ -39,24 +59,32 @@ export const inventoryApi = {
         const q = params.search.toLowerCase();
         items = items.filter(i => i.name.toLowerCase().includes(q) || i.category.toLowerCase().includes(q));
       }
-      return { content: items, totalElements: items.length, totalPages: 1, number: 0 };
+      return { content: items.map(normalizeInventory), totalElements: items.length, totalPages: 1, number: 0 };
     }
   },
 
   get: async (id) => {
     try {
       const res = await axiosClient.get(`/inventory/${id}`);
-      return res.data;
+      return normalizeInventory(res.data);
     } catch {
       const items = getStoredInventory();
-      return items.find(i => i.id === id);
+      const item = items.find(i => String(i.id) === String(id));
+      return normalizeInventory(item);
     }
   },
 
   create: async (data) => {
     try {
-      const res = await axiosClient.post('/inventory', data);
-      return res.data;
+      const payload = {
+        name: data.name,
+        category: data.category,
+        quantity: Number(data.quantity) || 0,
+        minimumThreshold: Number(data.minimumThreshold) || 10,
+        unit: data.unit || 'Units',
+      };
+      const res = await axiosClient.post('/inventory', payload);
+      return normalizeInventory(res.data);
     } catch {
       const items = getStoredInventory();
       const newItem = {
@@ -67,21 +95,28 @@ export const inventoryApi = {
       };
       items.unshift(newItem);
       saveStoredInventory(items);
-      return newItem;
+      return normalizeInventory(newItem);
     }
   },
 
   update: async (id, data) => {
     try {
-      const res = await axiosClient.put(`/inventory/${id}`, data);
-      return res.data;
+      const payload = {
+        name: data.name,
+        category: data.category,
+        quantity: Number(data.quantity) || 0,
+        minimumThreshold: Number(data.minimumThreshold) || 10,
+        unit: data.unit || 'Units',
+      };
+      const res = await axiosClient.put(`/inventory/${id}`, payload);
+      return normalizeInventory(res.data);
     } catch {
       const items = getStoredInventory();
-      const idx = items.findIndex(i => i.id === id);
+      const idx = items.findIndex(i => String(i.id) === String(id));
       if (idx !== -1) {
         items[idx] = { ...items[idx], ...data, quantity: Number(data.quantity), minimumThreshold: Number(data.minimumThreshold) };
         saveStoredInventory(items);
-        return items[idx];
+        return normalizeInventory(items[idx]);
       }
       throw new Error('Item not found');
     }
@@ -91,7 +126,7 @@ export const inventoryApi = {
     try {
       await axiosClient.delete(`/inventory/${id}`);
     } catch {
-      const items = getStoredInventory().filter(i => i.id !== id);
+      const items = getStoredInventory().filter(i => String(i.id) !== String(id));
       saveStoredInventory(items);
     }
   },
@@ -99,10 +134,11 @@ export const inventoryApi = {
   lowStock: async () => {
     try {
       const res = await axiosClient.get('/inventory/low-stock');
-      return res.data;
+      const raw = Array.isArray(res.data) ? res.data : (res.data?.content || []);
+      return raw.map(normalizeInventory);
     } catch {
       const items = getStoredInventory();
-      return items.filter(i => i.quantity <= i.minimumThreshold);
+      return items.filter(i => i.quantity <= i.minimumThreshold).map(normalizeInventory);
     }
   },
 };

@@ -50,11 +50,36 @@ function saveStoredDonations(data) {
   localStorage.setItem('mock_donations', JSON.stringify(data));
 }
 
+export function normalizeDonation(d) {
+  if (!d) return d;
+  return {
+    ...d,
+    id: d.id !== undefined && d.id !== null ? String(d.id) : '',
+    donorName: d.donorName || 'Anonymous Donor',
+    donorEmail: d.donorEmail || '',
+    type: d.type || 'GOODS',
+    itemName: d.itemName || '',
+    quantity: d.quantity ?? 0,
+    amount: d.amount ?? 0,
+    status: d.status || 'PENDING',
+    transactionRef: d.transactionId || d.transactionRef || '',
+    createdAt: d.createdAt || new Date().toISOString(),
+  };
+}
+
 export const donationApi = {
   list: async (params = {}) => {
     try {
       const res = await axiosClient.get('/donations', { params });
-      return res.data;
+      const rawList = Array.isArray(res.data) ? res.data : (res.data?.content || []);
+      let items = rawList.map(normalizeDonation);
+      if (params.type && params.type !== 'ALL') {
+        items = items.filter(d => d.type === params.type);
+      }
+      if (params.status && params.status !== 'ALL') {
+        items = items.filter(d => d.status === params.status);
+      }
+      return { content: items, totalElements: items.length, totalPages: 1, number: 0 };
     } catch {
       let items = getStoredDonations();
       if (params.type && params.type !== 'ALL') {
@@ -63,24 +88,49 @@ export const donationApi = {
       if (params.status && params.status !== 'ALL') {
         items = items.filter(d => d.status === params.status);
       }
+      return { content: items.map(normalizeDonation), totalElements: items.length, totalPages: 1, number: 0 };
+    }
+  },
+
+  my: async (params = {}) => {
+    try {
+      const res = await axiosClient.get('/donations/my', { params });
+      const rawList = Array.isArray(res.data) ? res.data : (res.data?.content || []);
+      let items = rawList.map(normalizeDonation);
+      if (params.type && params.type !== 'ALL') {
+        items = items.filter(d => d.type === params.type);
+      }
       return { content: items, totalElements: items.length, totalPages: 1, number: 0 };
+    } catch {
+      let items = getStoredDonations();
+      if (params.type && params.type !== 'ALL') {
+        items = items.filter(d => d.type === params.type);
+      }
+      return { content: items.map(normalizeDonation), totalElements: items.length, totalPages: 1, number: 0 };
     }
   },
 
   get: async (id) => {
     try {
       const res = await axiosClient.get(`/donations/${id}`);
-      return res.data;
+      return normalizeDonation(res.data);
     } catch {
       const items = getStoredDonations();
-      return items.find(d => d.id === id);
+      const item = items.find(d => String(d.id) === String(id));
+      return normalizeDonation(item);
     }
   },
 
   createPledge: async (data) => {
     try {
-      const res = await axiosClient.post('/donations/pledge', data);
-      return res.data;
+      const payload = {
+        type: data.type,
+        amount: data.amount ? Number(data.amount) : null,
+        itemName: data.itemName || null,
+        quantity: data.quantity ? Number(data.quantity) : null,
+      };
+      const res = await axiosClient.post('/donations/pledge', payload);
+      return normalizeDonation(res.data);
     } catch {
       const items = getStoredDonations();
       const newDonation = {
@@ -91,22 +141,21 @@ export const donationApi = {
       };
       items.unshift(newDonation);
       saveStoredDonations(items);
-      return newDonation;
+      return normalizeDonation(newDonation);
     }
   },
 
   approvePledge: async (id) => {
     try {
-      const res = await axiosClient.post(`/donations/${id}/approve`);
-      return res.data;
+      const res = await axiosClient.patch(`/donations/${id}/approve`);
+      return normalizeDonation(res.data);
     } catch {
       const items = getStoredDonations();
-      const idx = items.findIndex(d => d.id === id);
+      const idx = items.findIndex(d => String(d.id) === String(id));
       if (idx !== -1) {
         items[idx].status = 'APPROVED';
         saveStoredDonations(items);
 
-        // FR-5.1: Approving a goods pledge automatically increments inventory stock
         if (items[idx].type === 'GOODS') {
           const invList = await inventoryApi.list();
           const existingInv = invList.content.find(i => i.name.toLowerCase() === items[idx].itemName.toLowerCase());
@@ -125,7 +174,7 @@ export const donationApi = {
             });
           }
         }
-        return items[idx];
+        return normalizeDonation(items[idx]);
       }
       throw new Error('Pledge not found');
     }
@@ -134,14 +183,14 @@ export const donationApi = {
   verifyPayment: async (id) => {
     try {
       const res = await axiosClient.post(`/donations/${id}/verify-payment`);
-      return res.data;
+      return normalizeDonation(res.data);
     } catch {
       const items = getStoredDonations();
-      const idx = items.findIndex(d => d.id === id);
+      const idx = items.findIndex(d => String(d.id) === String(id));
       if (idx !== -1) {
         items[idx].status = 'VERIFIED';
         saveStoredDonations(items);
-        return items[idx];
+        return normalizeDonation(items[idx]);
       }
       throw new Error('Donation not found');
     }

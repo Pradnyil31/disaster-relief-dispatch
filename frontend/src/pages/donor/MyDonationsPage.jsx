@@ -15,7 +15,7 @@ export function MyDonationsPage() {
   const fetchDonations = async () => {
     try {
       setLoading(true);
-      const res = await donationApi.list({ type: typeFilter });
+      const res = await donationApi.my({ type: typeFilter });
       setDonations(res.content || res || []);
     } catch {
       toast.error('Failed to load donation history');
