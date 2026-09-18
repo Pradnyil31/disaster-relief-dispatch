@@ -228,7 +228,7 @@
       "name": "05. Donations & Payments",
       "item": [
         {
-          "name": "Pledge Monetary Donation (Razorpay Gateway)",
+          "name": "Pledge Monetary Donation",
           "request": {
             "method": "POST",
             "header": [
@@ -236,13 +236,13 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"type\": \"MONETARY\",\n  \"amount\": 5000.00\n}"
+              "raw": "{\n  \"type\": \"MONEY\",\n  \"amount\": 5000.00\n}"
             },
             "url": { "raw": "{{baseUrl}}/donations/pledge", "host": ["{{baseUrl}}"], "path": ["donations", "pledge"] }
           }
         },
         {
-          "name": "Pledge Physical Supply Donation",
+          "name": "Pledge Relief Goods Supply Donation",
           "request": {
             "method": "POST",
             "header": [
@@ -250,7 +250,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"type\": \"PHYSICAL\",\n  \"itemName\": \"Heavy Duty Blankets\",\n  \"quantity\": 50\n}"
+              "raw": "{\n  \"type\": \"GOODS\",\n  \"itemName\": \"Heavy Duty Blankets\",\n  \"quantity\": 50\n}"
             },
             "url": { "raw": "{{baseUrl}}/donations/pledge", "host": ["{{baseUrl}}"], "path": ["donations", "pledge"] }
           }
