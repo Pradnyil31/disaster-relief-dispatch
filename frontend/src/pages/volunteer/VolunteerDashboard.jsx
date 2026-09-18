@@ -14,7 +14,7 @@ export function VolunteerDashboard() {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const res = await dispatchApi.list();
+      const res = await dispatchApi.myTasks();
       setTasks(res.content || []);
     } catch {
       toast.error('Failed to load dispatch tasks');

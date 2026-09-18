@@ -108,6 +108,7 @@ public class DispatchService {
             task.setDeliveredAt(LocalDateTime.now());
             task.getSosRequest().setStatus(RequestStatus.DELIVERED);
         } else if (targetStatus == TaskStatus.EN_ROUTE) {
+            task.setEnRouteAt(LocalDateTime.now());
             task.getSosRequest().setStatus(RequestStatus.EN_ROUTE);
         }
 
@@ -175,6 +176,7 @@ public class DispatchService {
                 .status(task.getStatus())
                 .notes(task.getNotes())
                 .assignedAt(task.getAssignedAt())
+                .enRouteAt(task.getEnRouteAt())
                 .deliveredAt(task.getDeliveredAt())
                 .build();
     }

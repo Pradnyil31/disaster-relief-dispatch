@@ -24,5 +24,6 @@ public class DispatchResponse {
     private TaskStatus status;
     private String notes;
     private LocalDateTime assignedAt;
+    private LocalDateTime enRouteAt;
     private LocalDateTime deliveredAt;
 }

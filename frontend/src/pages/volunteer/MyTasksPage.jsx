@@ -15,7 +15,7 @@ export function MyTasksPage() {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const res = await dispatchApi.list({
+      const res = await dispatchApi.myTasks({
         status: statusFilter,
         search: searchTerm,
       });

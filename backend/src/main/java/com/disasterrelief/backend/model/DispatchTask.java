@@ -36,6 +36,9 @@ public class DispatchTask {
     @Column(name = "assigned_at", nullable = false, updatable = false)
     private LocalDateTime assignedAt;
 
+    @Column(name = "en_route_at")
+    private LocalDateTime enRouteAt;
+
     @Column(name = "delivered_at")
     private LocalDateTime deliveredAt;
 

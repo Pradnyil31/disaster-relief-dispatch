@@ -108,13 +108,45 @@ function saveStoredMockDispatches(data) {
   localStorage.setItem('mock_dispatches', JSON.stringify(data));
 }
 
+export function normalizeDispatch(d) {
+  if (!d) return d;
+  return {
+    ...d,
+    id: d.id !== undefined && d.id !== null ? String(d.id) : '',
+    sosId: d.sosRequestId !== undefined && d.sosRequestId !== null ? String(d.sosRequestId) : (d.sosId || ''),
+    citizenName: d.citizenName || 'Citizen Requester',
+    citizenPhone: d.citizenPhone || '',
+    locationName: d.locationAddress || d.locationName || '',
+    urgencyLevel: d.urgencyLevel || 'MEDIUM',
+    requiredSupplies: Array.isArray(d.requiredSupplies) ? d.requiredSupplies : (d.suppliesNeeded ? [d.suppliesNeeded] : []),
+    status: d.status || 'ASSIGNED',
+    notes: d.notes || '',
+    assignedAt: d.assignedAt || new Date().toISOString(),
+    enRouteAt: d.enRouteAt || null,
+    deliveredAt: d.deliveredAt || null,
+  };
+}
+
 export const dispatchApi = {
   list: async (params = {}) => {
     try {
       const res = await axiosClient.get('/dispatch', { params });
-      return res.data;
+      const rawList = Array.isArray(res.data) ? res.data : (res.data?.content || []);
+      let items = rawList.map(normalizeDispatch);
+      if (params.status && params.status !== 'ALL') {
+        items = items.filter(d => d.status === params.status);
+      }
+      if (params.search) {
+        const q = params.search.toLowerCase();
+        items = items.filter(d =>
+          d.citizenName.toLowerCase().includes(q) ||
+          String(d.id).toLowerCase().includes(q) ||
+          String(d.sosId).toLowerCase().includes(q) ||
+          d.requiredSupplies.some(s => s.toLowerCase().includes(q))
+        );
+      }
+      return { content: items, totalElements: items.length, totalPages: 1, number: 0 };
     } catch {
-      // Fallback to local mock data
       const dispatches = getStoredMockDispatches();
       const statusFilter = params.status;
       const search = params.search?.toLowerCase();
@@ -126,14 +158,14 @@ export const dispatchApi = {
       if (search) {
         filtered = filtered.filter(d =>
           d.citizenName.toLowerCase().includes(search) ||
-          d.id.toLowerCase().includes(search) ||
-          d.sosId.toLowerCase().includes(search) ||
+          String(d.id).toLowerCase().includes(search) ||
+          String(d.sosId).toLowerCase().includes(search) ||
           d.requiredSupplies.some(s => s.toLowerCase().includes(search))
         );
       }
 
       return {
-        content: filtered,
+        content: filtered.map(normalizeDispatch),
         totalElements: filtered.length,
         totalPages: 1,
         number: 0,
@@ -141,22 +173,53 @@ export const dispatchApi = {
     }
   },
 
+  myTasks: async (params = {}) => {
+    try {
+      const res = await axiosClient.get('/dispatch/my', { params });
+      const rawList = Array.isArray(res.data) ? res.data : (res.data?.content || []);
+      let items = rawList.map(normalizeDispatch);
+      if (params.status && params.status !== 'ALL') {
+        items = items.filter(d => d.status === params.status);
+      }
+      if (params.search) {
+        const q = params.search.toLowerCase();
+        items = items.filter(d =>
+          d.citizenName.toLowerCase().includes(q) ||
+          String(d.id).toLowerCase().includes(q) ||
+          String(d.sosId).toLowerCase().includes(q) ||
+          d.requiredSupplies.some(s => s.toLowerCase().includes(q))
+        );
+      }
+      return { content: items, totalElements: items.length, totalPages: 1, number: 0 };
+    } catch {
+      const dispatches = getStoredMockDispatches();
+      return { content: dispatches.map(normalizeDispatch), totalElements: dispatches.length, totalPages: 1, number: 0 };
+    }
+  },
+
   get: async (id) => {
     try {
       const res = await axiosClient.get(`/dispatch/${id}`);
-      return res.data;
+      return normalizeDispatch(res.data);
     } catch {
       const dispatches = getStoredMockDispatches();
-      const item = dispatches.find(d => d.id === id || d.sosId === id);
-      if (item) return item;
+      const item = dispatches.find(d => String(d.id) === String(id) || String(d.sosId) === String(id));
+      if (item) return normalizeDispatch(item);
       throw new Error(`Dispatch task ${id} not found.`);
     }
   },
 
   assign: async (data) => {
     try {
-      const res = await axiosClient.post('/dispatch/assign', data);
-      return res.data;
+      const payload = {
+        sosRequestId: Number(data.sosId || data.sosRequestId),
+        volunteerId: Number(data.volunteerId),
+        inventoryItemId: data.inventoryItemId ? Number(data.inventoryItemId) : null,
+        quantityDeducted: data.quantityDeducted ? Number(data.quantityDeducted) : null,
+        notes: data.notes || '',
+      };
+      const res = await axiosClient.post('/dispatch', payload);
+      return normalizeDispatch(res.data);
     } catch {
       const dispatches = getStoredMockDispatches();
       const newDispatch = {
@@ -166,33 +229,25 @@ export const dispatchApi = {
         citizenPhone: data.citizenPhone || '+91 99000 00000',
         latitude: data.latitude || 19.0760,
         longitude: data.longitude || 72.8777,
-        urgencyLevel: data.urgencyLevel || 'Medium',
+        urgencyLevel: data.urgencyLevel || 'MEDIUM',
         requiredSupplies: data.requiredSupplies || ['General Relief Kit'],
         notes: data.notes || '',
         status: 'ASSIGNED',
         assignedAt: new Date().toISOString(),
-        history: [
-          {
-            status: 'ASSIGNED',
-            timestamp: new Date().toISOString(),
-            updatedBy: 'Admin',
-            note: 'Assigned to volunteer'
-          }
-        ]
       };
       dispatches.unshift(newDispatch);
       saveStoredMockDispatches(dispatches);
-      return newDispatch;
+      return normalizeDispatch(newDispatch);
     }
   },
 
-  updateStatus: async (id, status, note = '') => {
+  updateStatus: async (id, status, notes = '') => {
     try {
-      const res = await axiosClient.patch(`/dispatch/${id}/status`, { status, note });
-      return res.data;
+      const res = await axiosClient.patch(`/dispatch/${id}/status`, { status, notes });
+      return normalizeDispatch(res.data);
     } catch {
       const dispatches = getStoredMockDispatches();
-      const index = dispatches.findIndex(d => d.id === id || d.sosId === id);
+      const index = dispatches.findIndex(d => String(d.id) === String(id) || String(d.sosId) === String(id));
       if (index === -1) throw new Error('Task not found');
 
       const now = new Date().toISOString();
@@ -202,19 +257,9 @@ export const dispatchApi = {
       if (status === 'EN_ROUTE') current.enRouteAt = now;
       if (status === 'DELIVERED') current.deliveredAt = now;
 
-      const historyItem = {
-        status,
-        timestamp: now,
-        updatedBy: 'Volunteer (Self)',
-        note: note || (status === 'EN_ROUTE' ? 'Updated status to En Route' : 'Updated status to Delivered')
-      };
-
-      current.history = current.history || [];
-      current.history.push(historyItem);
-
       dispatches[index] = current;
       saveStoredMockDispatches(dispatches);
-      return current;
+      return normalizeDispatch(current);
     }
   },
 
@@ -224,7 +269,7 @@ export const dispatchApi = {
       return res.data;
     } catch {
       const dispatches = getStoredMockDispatches();
-      const item = dispatches.find(d => d.id === id || d.sosId === id);
+      const item = dispatches.find(d => String(d.id) === String(id) || String(d.sosId) === String(id));
       return item ? item.history : [];
     }
   },
