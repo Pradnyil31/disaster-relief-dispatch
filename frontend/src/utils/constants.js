@@ -5,7 +5,7 @@ export const ROLES = {
   DONOR: 'DONOR',
 };
 
-export const URGENCY_LEVELS = ['High', 'Medium', 'Low'];
+export const URGENCY_LEVELS = ['HIGH', 'MEDIUM', 'LOW'];
 
 export const DISPATCH_STATUS = ['ASSIGNED', 'EN_ROUTE', 'DELIVERED'];
 

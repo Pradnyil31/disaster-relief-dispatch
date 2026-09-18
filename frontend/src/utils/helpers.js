@@ -22,6 +22,9 @@ export function formatDateOnly(dateString) {
 
 export function getUrgencyBadgeClass(urgency) {
   const map = {
+    HIGH: 'badge-urgency-high',
+    MEDIUM: 'badge-urgency-medium',
+    LOW: 'badge-urgency-low',
     High: 'badge-urgency-high',
     Medium: 'badge-urgency-medium',
     Low: 'badge-urgency-low',

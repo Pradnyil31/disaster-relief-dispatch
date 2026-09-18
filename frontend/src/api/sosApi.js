@@ -85,11 +85,42 @@ function saveStoredSos(data) {
   localStorage.setItem('mock_sos_requests', JSON.stringify(data));
 }
 
+export function normalizeSos(s) {
+  if (!s) return s;
+  let supplies = [];
+  if (Array.isArray(s.requiredSupplies)) {
+    supplies = s.requiredSupplies;
+  } else if (typeof s.suppliesNeeded === 'string' && s.suppliesNeeded.trim()) {
+    supplies = s.suppliesNeeded.split(',').map((item) => item.trim()).filter(Boolean);
+  } else if (typeof s.requiredSupplies === 'string' && s.requiredSupplies.trim()) {
+    supplies = s.requiredSupplies.split(',').map((item) => item.trim()).filter(Boolean);
+  }
+
+  return {
+    ...s,
+    id: s.id !== undefined && s.id !== null ? String(s.id) : '',
+    citizenName: s.citizenName || 'Citizen',
+    citizenPhone: s.phoneNumber || s.citizenPhone || '',
+    locationName: s.locationAddress || s.locationName || '',
+    urgencyLevel: s.urgencyLevel || 'MEDIUM',
+    requiredSupplies: supplies,
+    notes: s.notes || '',
+    status: s.status || 'PENDING',
+  };
+}
+
 export const sosApi = {
   list: async (params = {}) => {
     try {
       const res = await axiosClient.get('/sos', { params });
-      return res.data;
+      const rawContent = res.data?.content || (Array.isArray(res.data) ? res.data : []);
+      const normalizedContent = rawContent.map(normalizeSos);
+      return {
+        content: normalizedContent,
+        totalElements: res.data?.totalElements ?? normalizedContent.length,
+        totalPages: res.data?.totalPages ?? 1,
+        number: res.data?.number ?? 0,
+      };
     } catch {
       let items = getStoredSos();
       if (params.urgency && params.urgency !== 'ALL') {
@@ -102,30 +133,61 @@ export const sosApi = {
         const q = params.search.toLowerCase();
         items = items.filter(s =>
           s.citizenName.toLowerCase().includes(q) ||
-          s.id.toLowerCase().includes(q) ||
+          String(s.id).toLowerCase().includes(q) ||
           s.requiredSupplies?.some(sup => sup.toLowerCase().includes(q))
         );
       }
-      return { content: items, totalElements: items.length, totalPages: 1, number: 0 };
+      return { content: items.map(normalizeSos), totalElements: items.length, totalPages: 1, number: 0 };
+    }
+  },
+
+  my: async (params = {}) => {
+    try {
+      const res = await axiosClient.get('/sos/my', { params });
+      const rawList = Array.isArray(res.data) ? res.data : (res.data?.content || []);
+      const normalizedList = rawList.map(normalizeSos);
+      return {
+        content: normalizedList,
+        totalElements: normalizedList.length,
+        totalPages: 1,
+        number: 0,
+      };
+    } catch {
+      let items = getStoredSos();
+      if (params.status && params.status !== 'ALL') {
+        items = items.filter(s => s.status === params.status);
+      }
+      if (params.urgencyLevel && params.urgencyLevel !== 'ALL') {
+        items = items.filter(s => s.urgencyLevel === params.urgencyLevel);
+      }
+      return { content: items.map(normalizeSos), totalElements: items.length, totalPages: 1, number: 0 };
     }
   },
 
   get: async (id) => {
     try {
       const res = await axiosClient.get(`/sos/${id}`);
-      return res.data;
+      return normalizeSos(res.data);
     } catch {
       const items = getStoredSos();
-      const item = items.find(s => s.id === id);
-      if (item) return item;
+      const item = items.find(s => String(s.id) === String(id));
+      if (item) return normalizeSos(item);
       throw new Error(`SOS request ${id} not found.`);
     }
   },
 
   create: async (data) => {
     try {
-      const res = await axiosClient.post('/sos', data);
-      return res.data;
+      const payload = {
+        urgencyLevel: data.urgencyLevel,
+        latitude: Number(data.latitude),
+        longitude: Number(data.longitude),
+        locationAddress: data.locationName || data.locationAddress || 'Captured Geolocation',
+        suppliesNeeded: Array.isArray(data.requiredSupplies) ? data.requiredSupplies.join(', ') : (data.requiredSupplies || ''),
+        phoneNumber: data.citizenPhone || data.phoneNumber || '',
+      };
+      const res = await axiosClient.post('/sos', payload);
+      return normalizeSos(res.data);
     } catch {
       const items = getStoredSos();
       const newSos = {
@@ -135,7 +197,7 @@ export const sosApi = {
         latitude: Number(data.latitude),
         longitude: Number(data.longitude),
         locationName: data.locationName || 'Captured Geolocation',
-        urgencyLevel: data.urgencyLevel || 'Medium',
+        urgencyLevel: data.urgencyLevel || 'MEDIUM',
         requiredSupplies: data.requiredSupplies || [],
         notes: data.notes || '',
         status: 'PENDING',
@@ -143,21 +205,23 @@ export const sosApi = {
       };
       items.unshift(newSos);
       saveStoredSos(items);
-      return newSos;
+      return normalizeSos(newSos);
     }
   },
 
   update: async (id, data) => {
     try {
-      const res = await axiosClient.put(`/sos/${id}`, data);
-      return res.data;
+      const statusValue = typeof data === 'string' ? data : data?.status;
+      const res = await axiosClient.patch(`/sos/${id}/status`, { status: statusValue });
+      return normalizeSos(res.data);
     } catch {
       const items = getStoredSos();
-      const idx = items.findIndex(s => s.id === id);
+      const idx = items.findIndex(s => String(s.id) === String(id));
       if (idx !== -1) {
-        items[idx] = { ...items[idx], ...data };
+        const updateVal = typeof data === 'string' ? { status: data } : data;
+        items[idx] = { ...items[idx], ...updateVal };
         saveStoredSos(items);
-        return items[idx];
+        return normalizeSos(items[idx]);
       }
       throw new Error('SOS request not found');
     }
@@ -167,7 +231,7 @@ export const sosApi = {
     try {
       await axiosClient.delete(`/sos/${id}`);
     } catch {
-      const items = getStoredSos().filter(s => s.id !== id);
+      const items = getStoredSos().filter(s => String(s.id) !== String(id));
       saveStoredSos(items);
     }
   },

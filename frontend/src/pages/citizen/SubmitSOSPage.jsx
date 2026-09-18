@@ -21,9 +21,9 @@ const SUPPLY_CATEGORIES = [
 ];
 
 const URGENCY_CONFIG = {
-  High:   { color: 'danger',  icon: 'bi-exclamation-triangle-fill', desc: 'Life-threatening situation' },
-  Medium: { color: 'warning', icon: 'bi-exclamation-circle-fill',   desc: 'Serious but not immediately fatal' },
-  Low:    { color: 'info',    icon: 'bi-info-circle-fill',          desc: 'Assistance needed, stable for now' },
+  HIGH:   { color: 'danger',  icon: 'bi-exclamation-triangle-fill', desc: 'Life-threatening situation' },
+  MEDIUM: { color: 'warning', icon: 'bi-exclamation-circle-fill',   desc: 'Serious but not immediately fatal' },
+  LOW:    { color: 'info',    icon: 'bi-info-circle-fill',          desc: 'Assistance needed, stable for now' },
 };
 
 export function SubmitSOSPage() {

@@ -15,7 +15,7 @@ export const registerSchema = z.object({
 export const sosSchema = z.object({
   latitude: z.number({ invalid_type_error: 'Location is required' }).min(-90).max(90, 'Invalid latitude'),
   longitude: z.number({ invalid_type_error: 'Location is required' }).min(-180).max(180, 'Invalid longitude'),
-  urgencyLevel: z.enum(['High', 'Medium', 'Low'], { errorMap: () => ({ message: 'Please select an urgency level' }) }),
+  urgencyLevel: z.enum(['HIGH', 'MEDIUM', 'LOW'], { errorMap: () => ({ message: 'Please select an urgency level' }) }),
   requiredSupplies: z.array(z.string()).min(1, 'Select at least one supply category'),
   notes: z.string().max(1000).optional(),
 });

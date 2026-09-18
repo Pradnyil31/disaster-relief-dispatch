@@ -11,6 +11,9 @@ const PAGE_SIZE = 10;
 const STATUS_OPTIONS = ['All', 'PENDING', 'ASSIGNED', 'EN_ROUTE', 'DELIVERED', 'CANCELLED'];
 
 const URGENCY_BADGE = {
+  HIGH:   'badge-urgency-high',
+  MEDIUM: 'badge-urgency-medium',
+  LOW:    'badge-urgency-low',
   High:   'badge-urgency-high',
   Medium: 'badge-urgency-medium',
   Low:    'badge-urgency-low',
@@ -21,6 +24,7 @@ const STATUS_BADGE = {
   ASSIGNED:  'badge-status-assigned',
   EN_ROUTE:  'badge-status-en_route',
   DELIVERED: 'badge-status-delivered',
+  CLOSED:    'bg-success bg-opacity-10 text-success',
   CANCELLED: 'bg-danger bg-opacity-10 text-danger',
 };
 
@@ -46,14 +50,13 @@ export function MySOSHistoryPage() {
           ...(statusFilter !== 'All' && { status: statusFilter }),
           ...(urgencyFilter !== 'All' && { urgencyLevel: urgencyFilter }),
         };
-        const res = await sosApi.list(params);
+        const res = await sosApi.my(params);
         if (!cancelled) {
-          // Supports Spring Pageable response: { content, totalPages } or plain array
-          if (res.data?.content) {
-            setRequests(res.data.content);
-            setTotalPages(res.data.totalPages || 1);
+          if (res.content) {
+            setRequests(res.content);
+            setTotalPages(res.totalPages || 1);
           } else {
-            setRequests(res.data || []);
+            setRequests(res || []);
             setTotalPages(1);
           }
         }

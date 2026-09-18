@@ -90,9 +90,9 @@ export function SOSManagementPage() {
                 onChange={(e) => setUrgencyFilter(e.target.value)}
               >
                 <option value="ALL">All Urgency Levels</option>
-                <option value="High">High Urgency</option>
-                <option value="Medium">Medium Urgency</option>
-                <option value="Low">Low Urgency</option>
+                <option value="HIGH">High Urgency</option>
+                <option value="MEDIUM">Medium Urgency</option>
+                <option value="LOW">Low Urgency</option>
               </select>
             </div>
 
