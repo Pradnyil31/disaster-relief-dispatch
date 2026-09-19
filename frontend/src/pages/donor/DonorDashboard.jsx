@@ -14,7 +14,7 @@ export function DonorDashboard() {
     async function loadDonorData() {
       try {
         setLoading(true);
-        const res = await donationApi.list({ status: 'ALL' });
+        const res = await donationApi.my({ status: 'ALL' });
         setDonations(res.content || res || []);
       } catch {
         toast.error('Failed to load donation history');
@@ -180,7 +180,7 @@ export function DonorDashboard() {
                         </td>
                         <td>
                           {d.type === 'GOODS' ? (
-                            <span className="fw-semibold text-dark">{d.quantity} {d.unit || 'units'} of {d.itemName}</span>
+                            <span className="fw-semibold text-dark">{d.quantity} units of {d.itemName}</span>
                           ) : (
                             <span className="fw-bold text-success">₹{d.amount?.toLocaleString()}</span>
                           )}

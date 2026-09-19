@@ -34,18 +34,18 @@ public class DonationService {
 
     @Transactional
     public DonationResponse pledgeDonation(User donor, DonationPledgeRequest request) {
-        if (request.getType() == DonationType.MONETARY && (request.getAmount() == null || request.getAmount() <= 0)) {
+        if (request.getType() == DonationType.MONEY && (request.getAmount() == null || request.getAmount() <= 0)) {
             throw new BusinessRuleException("Monetary donation requires a valid positive amount");
         }
 
-        if (request.getType() == DonationType.PHYSICAL && (request.getItemName() == null || request.getItemName().isBlank() || request.getQuantity() == null || request.getQuantity() <= 0)) {
-            throw new BusinessRuleException("Physical donation requires item name and a positive quantity");
+        if (request.getType() == DonationType.GOODS && (request.getItemName() == null || request.getItemName().trim().isEmpty() || request.getCategory() == null || request.getQuantity() == null || request.getQuantity() <= 0)) {
+            throw new BusinessRuleException("Physical donation requires item name, category, and a positive quantity");
         }
 
         String razorpayOrderId = null;
         String transactionId = null;
 
-        if (request.getType() == DonationType.MONETARY) {
+        if (request.getType() == DonationType.MONEY) {
             razorpayOrderId = paymentGatewayService.createRazorpayOrderId(request.getAmount());
             transactionId = paymentGatewayService.generateTransactionId();
         }
@@ -54,15 +54,34 @@ public class DonationService {
                 .donor(donor)
                 .type(request.getType())
                 .amount(request.getAmount())
-                .itemName(request.getItemName())
+                .itemName(request.getItemName() != null ? request.getItemName().trim().toUpperCase() : null)
+                .category(request.getCategory())
                 .quantity(request.getQuantity())
-                .status(request.getType() == DonationType.MONETARY ? DonationStatus.APPROVED : DonationStatus.PENDING)
+                .status(DonationStatus.PENDING)
                 .razorpayOrderId(razorpayOrderId)
                 .transactionId(transactionId)
                 .build();
 
         Donation saved = donationRepository.save(donation);
         return mapToResponse(saved);
+    }
+
+    @Transactional
+    public DonationResponse verifyPayment(Long donationId) {
+        Donation donation = donationRepository.findById(donationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Donation not found with id: " + donationId));
+
+        if (donation.getType() != DonationType.MONEY) {
+            throw new BusinessRuleException("Only monetary donations require payment verification");
+        }
+
+        if (donation.getStatus() == DonationStatus.APPROVED) {
+            throw new BusinessRuleException("Payment is already verified");
+        }
+
+        donation.setStatus(DonationStatus.APPROVED);
+        Donation updated = donationRepository.save(donation);
+        return mapToResponse(updated);
     }
 
     @Transactional
@@ -78,10 +97,8 @@ public class DonationService {
         Donation updated = donationRepository.save(donation);
 
         // If physical donation, auto-increment or add to inventory!
-        if (donation.getType() == DonationType.PHYSICAL && donation.getItemName() != null) {
-            inventoryRepository.findAll().stream()
-                    .filter(i -> i.getName().equalsIgnoreCase(donation.getItemName()))
-                    .findFirst()
+        if (donation.getType() == DonationType.GOODS && donation.getItemName() != null) {
+            inventoryRepository.findByNameIgnoreCase(donation.getItemName())
                     .ifPresentOrElse(
                             existingItem -> {
                                 existingItem.setQuantity(existingItem.getQuantity() + donation.getQuantity());
@@ -90,9 +107,8 @@ public class DonationService {
                             () -> {
                                 InventoryRequest newReq = new InventoryRequest();
                                 newReq.setName(donation.getItemName());
-                                newReq.setCategory("DONATION");
+                                newReq.setCategory(donation.getCategory() != null ? donation.getCategory() : ReliefItem.OTHER);
                                 newReq.setQuantity(donation.getQuantity());
-                                newReq.setUnit("units");
                                 newReq.setMinimumThreshold(5);
                                 inventoryService.createInventoryItem(newReq);
                             }
@@ -124,6 +140,7 @@ public class DonationService {
                 .type(donation.getType())
                 .amount(donation.getAmount())
                 .itemName(donation.getItemName())
+                .category(donation.getCategory())
                 .quantity(donation.getQuantity())
                 .status(donation.getStatus())
                 .transactionId(donation.getTransactionId())

@@ -16,9 +16,9 @@ export function DonatePublicPage() {
     donorName: user?.name || '',
     donorEmail: user?.email || '',
     donorPhone: '',
-    itemName: 'Drinking Water (20L Cans)',
+    itemName: '',
+    category: 'WATER_AND_HYDRATION',
     quantity: '10',
-    unit: 'Cans',
     notes: '',
   });
 
@@ -36,7 +36,7 @@ export function DonatePublicPage() {
 
   const handleGoodsSubmit = async (e) => {
     e.preventDefault();
-    if (!goodsForm.donorName || !goodsForm.donorEmail || !goodsForm.quantity) {
+    if (!goodsForm.donorName || !goodsForm.donorEmail || !goodsForm.itemName || !goodsForm.quantity) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -156,7 +156,7 @@ export function DonatePublicPage() {
                 {successReceipt.type === 'GOODS' ? (
                   <div className="d-flex justify-content-between border-bottom pb-2 mb-2 fs-7">
                     <span className="text-muted">Pledged Supplies</span>
-                    <span className="fw-bold text-dark">{successReceipt.quantity} {successReceipt.unit} of {successReceipt.itemName}</span>
+                    <span className="fw-bold text-dark">{successReceipt.quantity} of {successReceipt.itemName} ({successReceipt.category})</span>
                   </div>
                 ) : (
                   <>
@@ -251,25 +251,39 @@ export function DonatePublicPage() {
                     </div>
                   </div>
 
-                  <div className="mb-3">
-                    <label className="form-label fw-semibold fs-7 text-dark">Select Relief Supply Item *</label>
-                    <select
-                      className="form-select"
-                      value={goodsForm.itemName}
-                      onChange={(e) => setGoodsForm({ ...goodsForm, itemName: e.target.value })}
-                    >
-                      <option value="Drinking Water (20L Cans)">Drinking Water (20L Cans)</option>
-                      <option value="First Aid Medical Kit">First Aid Medical Kit</option>
-                      <option value="Emergency Blankets">Emergency Blankets</option>
-                      <option value="Ready-to-Eat Food Packets">Ready-to-Eat Food Packets</option>
-                      <option value="Sanitary Hygiene Packs">Sanitary Hygiene Packs</option>
-                      <option value="LED Flashlights & Batteries">LED Flashlights & Batteries</option>
-                      <option value="Tarpaulin Sheets / Tents">Tarpaulin Sheets / Tents</option>
-                    </select>
+                  <div className="row g-3 mb-3">
+                    <div className="col-12 col-md-6">
+                      <label className="form-label fw-semibold fs-7 text-dark">Item Name (Custom) *</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="e.g. Blankets, Rice"
+                        value={goodsForm.itemName}
+                        onChange={(e) => setGoodsForm({ ...goodsForm, itemName: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="col-12 col-md-6">
+                      <label className="form-label fw-semibold fs-7 text-dark">Category *</label>
+                      <select
+                        className="form-select"
+                        value={goodsForm.category}
+                        onChange={(e) => setGoodsForm({ ...goodsForm, category: e.target.value })}
+                      >
+                        <option value="WATER_AND_HYDRATION">Water & Hydration</option>
+                        <option value="FOOD_AND_RATIONS">Food & Rations</option>
+                        <option value="MEDICAL_SUPPLIES">Medical Supplies</option>
+                        <option value="SHELTER_AND_BLANKETS">Shelter & Blankets</option>
+                        <option value="CLOTHING">Clothing</option>
+                        <option value="FUEL_AND_ENERGY">Fuel & Energy</option>
+                        <option value="RESCUE_EQUIPMENT">Rescue Equipment</option>
+                        <option value="COMMUNICATION_DEVICES">Communication Devices</option>
+                      </select>
+                    </div>
                   </div>
 
                   <div className="row g-3 mb-3">
-                    <div className="col-6">
+                    <div className="col-12">
                       <label className="form-label fw-semibold fs-7 text-dark">Pledged Quantity *</label>
                       <input
                         type="number"
@@ -279,17 +293,6 @@ export function DonatePublicPage() {
                         value={goodsForm.quantity}
                         onChange={(e) => setGoodsForm({ ...goodsForm, quantity: e.target.value })}
                         required
-                      />
-                    </div>
-
-                    <div className="col-6">
-                      <label className="form-label fw-semibold fs-7 text-dark">Unit of Measure</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Cans, Kits, Packs"
-                        value={goodsForm.unit}
-                        onChange={(e) => setGoodsForm({ ...goodsForm, unit: e.target.value })}
                       />
                     </div>
                   </div>

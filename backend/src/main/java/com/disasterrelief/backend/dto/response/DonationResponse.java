@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.disasterrelief.backend.model.ReliefItem;
 
 import java.time.LocalDateTime;
 
@@ -20,6 +21,7 @@ public class DonationResponse {
     private DonationType type;
     private Double amount;
     private String itemName;
+    private ReliefItem category;
     private Integer quantity;
     private DonationStatus status;
     private String transactionId;

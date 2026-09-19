@@ -31,6 +31,9 @@ public class Donation {
     @Column(name = "item_name")
     private String itemName;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category")
+    private ReliefItem category;
     private Integer quantity;
 
     @Enumerated(EnumType.STRING)

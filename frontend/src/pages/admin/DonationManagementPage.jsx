@@ -12,6 +12,7 @@ export function DonationManagementPage() {
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [processingId, setProcessingId] = useState(null);
+  const [isNavCollapsed, setIsNavCollapsed] = useState(true);
 
   const fetchDonations = async () => {
     try {
@@ -36,7 +37,7 @@ export function DonationManagementPage() {
     try {
       setProcessingId(id);
       await donationApi.approvePledge(id);
-      toast.success(`Pledge approved! Added ${quantity} units of ${itemName} directly to relief inventory (FR-5.1).`);
+      toast.success(`Pledge approved! Added ${quantity} units of ${itemName} directly to relief inventory.`);
       await fetchDonations();
     } catch {
       toast.error('Failed to approve pledge');
@@ -76,21 +77,30 @@ export function DonationManagementPage() {
             <i className="bi bi-shield-lock-fill text-warning"></i>
             Admin Command Center
           </Link>
-          <div className="navbar-nav ms-auto align-items-center gap-2">
-            <Link to="/admin" className="btn btn-outline-light btn-sm rounded-pill px-3 me-2">
-              <i className="bi bi-speedometer2 me-1"></i> Dashboard
-            </Link>
-            <div className="d-flex align-items-center gap-2 text-white bg-white bg-opacity-10 px-3 py-1 rounded-pill">
-              <i className="bi bi-person-badge"></i>
-              <span className="fw-medium">{user?.name || 'Admin'}</span>
+          <button 
+            className="navbar-toggler border-0 shadow-none" 
+            type="button" 
+            onClick={() => setIsNavCollapsed(!isNavCollapsed)}
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className={`${isNavCollapsed ? 'collapse' : ''} navbar-collapse justify-content-end mt-3 mt-lg-0`}>
+            <div className="navbar-nav align-items-center gap-2">
+              <Link to="/admin" className="nav-custom-link">
+                <i className="bi bi-speedometer2"></i> Dashboard
+              </Link>
+              <div className="nav-custom-badge">
+                <i className="bi bi-person-circle fs-5"></i>
+                <span className="text-truncate" style={{ maxWidth: '120px' }}>{user?.name || 'Admin'}</span>
+              </div>
+              <button
+                type="button"
+                className="nav-logout-btn"
+                onClick={logout}
+              >
+                Logout <i className="bi bi-box-arrow-right"></i>
+              </button>
             </div>
-            <button
-              type="button"
-              className="btn btn-outline-light btn-sm px-3 rounded-pill hover-lift me-1"
-              onClick={logout}
-            >
-              Logout
-            </button>
           </div>
         </div>
       </nav>
@@ -99,7 +109,7 @@ export function DonationManagementPage() {
         {/* Header */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
           <div>
-            <h2 className="fw-bolder text-dark mb-1">Donation & Pledge Approvals (FR-5.1)</h2>
+            <h2 className="fw-bolder text-dark mb-1">Donation & Pledge Approvals</h2>
             <p className="text-muted mb-0">Approve pledged relief supplies (which automatically increment warehouse stock) and verify financial transactions.</p>
           </div>
         </div>
@@ -130,7 +140,6 @@ export function DonationManagementPage() {
                 <option value="ALL">All Statuses</option>
                 <option value="PENDING">Pending Approval</option>
                 <option value="APPROVED">Approved / Stocked</option>
-                <option value="VERIFIED">Payment Verified</option>
               </select>
             </div>
           </div>
@@ -187,7 +196,7 @@ export function DonationManagementPage() {
                           {d.type === 'GOODS' ? (
                             <div>
                               <strong className="text-dark">{d.itemName}</strong>
-                              <div className="fs-7 text-muted">{d.quantity} {d.unit || 'units'}</div>
+                              <div className="fs-7 text-muted">{d.quantity} units</div>
                             </div>
                           ) : (
                             <div>

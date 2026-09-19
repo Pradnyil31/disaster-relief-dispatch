@@ -60,4 +60,10 @@ public class DonationController {
         DonationResponse response = donationService.approveDonation(id);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/{id}/verify-payment")
+    public ResponseEntity<DonationResponse> verifyPayment(@PathVariable Long id) {
+        DonationResponse response = donationService.verifyPayment(id);
+        return ResponseEntity.ok(response);
+    }
 }

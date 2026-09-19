@@ -138,7 +138,7 @@ export function MyDonationsPage() {
                           {d.type === 'GOODS' ? (
                             <div>
                               <strong className="text-dark">{d.itemName}</strong>
-                              <div className="fs-7 text-muted">{d.quantity} {d.unit || 'units'}</div>
+                              <div className="fs-7 text-muted">{d.quantity} units</div>
                             </div>
                           ) : (
                             <div>
@@ -214,7 +214,7 @@ export function MyDonationsPage() {
                   {selectedReceipt.type === 'GOODS' ? (
                     <div className="d-flex justify-content-between fs-7 border-bottom pb-1 mb-2">
                       <span className="text-muted">Pledged Item & Quantity:</span>
-                      <strong className="text-dark">{selectedReceipt.quantity} {selectedReceipt.unit} of {selectedReceipt.itemName}</strong>
+                      <strong className="text-dark">{selectedReceipt.quantity} units of {selectedReceipt.itemName}</strong>
                     </div>
                   ) : (
                     <>

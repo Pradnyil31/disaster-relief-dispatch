@@ -3,6 +3,7 @@ package com.disasterrelief.backend.dto.request;
 import com.disasterrelief.backend.model.DonationType;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import com.disasterrelief.backend.model.ReliefItem;
 
 @Data
 public class DonationPledgeRequest {
@@ -12,5 +13,6 @@ public class DonationPledgeRequest {
 
     private Double amount;
     private String itemName;
+    private ReliefItem category;
     private Integer quantity;
 }
