@@ -4,6 +4,7 @@ import { useAuthContext } from '../../context/AuthContext';
 import { sosApi } from '../../api/sosApi';
 import { volunteerApi } from '../../api/volunteerApi';
 import { dispatchApi } from '../../api/dispatchApi';
+import { inventoryApi } from '../../api/inventoryApi';
 import { formatDate, getUrgencyBadgeClass, getDispatchStatusBadgeClass } from '../../utils/helpers';
 import toast from 'react-hot-toast';
 
@@ -13,30 +14,37 @@ export function DispatchManagementPage() {
 
   const [pendingSosList, setPendingSosList] = useState([]);
   const [volunteers, setVolunteers] = useState([]);
+  const [inventoryList, setInventoryList] = useState([]);
   const [dispatches, setDispatches] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Form State
   const [selectedSosId, setSelectedSosId] = useState(location.state?.selectedSosId || '');
   const [selectedVolunteerId, setSelectedVolunteerId] = useState('');
+  const [selectedInventoryId, setSelectedInventoryId] = useState('');
+  const [quantityDeducted, setQuantityDeducted] = useState(1);
   const [dispatchNotes, setDispatchNotes] = useState('');
   const [assigning, setAssigning] = useState(false);
+  const [isNavCollapsed, setIsNavCollapsed] = useState(true);
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [sosRes, volRes, dspRes] = await Promise.all([
+      const [sosRes, volRes, invRes, dspRes] = await Promise.all([
         sosApi.list({ status: 'PENDING' }),
         volunteerApi.list({ status: 'ALL' }),
+        inventoryApi.list(),
         dispatchApi.list({ status: 'ALL' }),
       ]);
 
       const pendingSos = sosRes.content || (Array.isArray(sosRes) ? sosRes : []);
       const volunteerList = volRes.content || (Array.isArray(volRes) ? volRes : []);
+      const inventoryItems = invRes.content || (Array.isArray(invRes) ? invRes : []);
       const dispatchList = dspRes.content || (Array.isArray(dspRes) ? dspRes : []);
 
       setPendingSosList(pendingSos);
       setVolunteers(volunteerList);
+      setInventoryList(inventoryItems);
       setDispatches(dispatchList);
 
       // Pre-select first SOS if available and none selected
@@ -61,14 +69,16 @@ export function DispatchManagementPage() {
       return;
     }
 
-    const sosObj = pendingSosList.find(s => s.id === selectedSosId);
-    const volObj = volunteers.find(v => v.id === selectedVolunteerId);
+    const sosObj = pendingSosList.find(s => String(s.id) === String(selectedSosId));
+    const volObj = volunteers.find(v => String(v.id) === String(selectedVolunteerId));
 
     try {
       setAssigning(true);
       await dispatchApi.assign({
         sosId: selectedSosId,
         volunteerId: selectedVolunteerId,
+        inventoryItemId: selectedInventoryId || null,
+        quantityDeducted: selectedInventoryId ? Number(quantityDeducted) : null,
         citizenName: sosObj?.citizenName || 'Citizen',
         citizenPhone: sosObj?.citizenPhone || '',
         latitude: sosObj?.latitude,
@@ -83,13 +93,15 @@ export function DispatchManagementPage() {
         await volunteerApi.updateStatus(volObj.id, 'BUSY');
       }
 
-      toast.success(`Volunteer ${volObj?.name || ''} successfully assigned to ${selectedSosId}!`);
+      toast.success(`Volunteer ${volObj?.name || ''} assigned to SOS #${selectedSosId}! Inventory stock deducted.`);
       setSelectedSosId('');
       setSelectedVolunteerId('');
+      setSelectedInventoryId('');
+      setQuantityDeducted(1);
       setDispatchNotes('');
       await fetchData();
-    } catch {
-      toast.error('Failed to assign dispatch task');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to assign dispatch task');
     } finally {
       setAssigning(false);
     }
@@ -103,21 +115,30 @@ export function DispatchManagementPage() {
             <i className="bi bi-shield-lock-fill text-warning"></i>
             Admin Command Center
           </Link>
-          <div className="navbar-nav ms-auto align-items-center gap-2">
-            <Link to="/admin" className="btn btn-outline-light btn-sm rounded-pill px-3 me-2">
-              <i className="bi bi-speedometer2 me-1"></i> Dashboard
-            </Link>
-            <div className="d-flex align-items-center gap-2 text-white bg-white bg-opacity-10 px-3 py-1 rounded-pill">
-              <i className="bi bi-person-badge"></i>
-              <span className="fw-medium">{user?.name || 'Admin'}</span>
+          <button 
+            className="navbar-toggler border-0 shadow-none" 
+            type="button" 
+            onClick={() => setIsNavCollapsed(!isNavCollapsed)}
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className={`${isNavCollapsed ? 'collapse' : ''} navbar-collapse justify-content-end mt-3 mt-lg-0`}>
+            <div className="navbar-nav align-items-center gap-2">
+              <Link to="/admin" className="nav-custom-link">
+                <i className="bi bi-speedometer2"></i> Dashboard
+              </Link>
+              <div className="nav-custom-badge">
+                <i className="bi bi-person-circle fs-5"></i>
+                <span className="text-truncate" style={{ maxWidth: '120px' }}>{user?.name || 'Admin'}</span>
+              </div>
+              <button
+                type="button"
+                className="nav-logout-btn"
+                onClick={logout}
+              >
+                Logout <i className="bi bi-box-arrow-right"></i>
+              </button>
             </div>
-            <button
-              type="button"
-              className="btn btn-outline-light btn-sm px-3 rounded-pill hover-lift me-1"
-              onClick={logout}
-            >
-              Logout
-            </button>
           </div>
         </div>
       </nav>
@@ -126,15 +147,15 @@ export function DispatchManagementPage() {
         {/* Header */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
           <div>
-            <h2 className="fw-bolder text-dark mb-1">Manual Dispatch Assignment (FR-4.1)</h2>
-            <p className="text-muted mb-0">Manually link pending emergency distress signals to available field volunteers.</p>
+            <h2 className="fw-bolder text-dark mb-1">Manual Dispatch & Stock Allocation</h2>
+            <p className="text-muted mb-0">Link pending emergency distress signals to field volunteers and automatically deduct stock.</p>
           </div>
         </div>
 
         {/* Dispatch Assignment Card Form */}
         <div className="card border-0 shadow-sm rounded-3 mb-4 p-4 bg-white border-top border-warning border-4">
           <h5 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
-            <i className="bi bi-truck text-warning"></i> Assign Volunteer to Emergency SOS
+            <i className="bi bi-truck text-warning"></i> Assign Volunteer & Stock to Emergency SOS
           </h5>
 
           <form onSubmit={handleAssignSubmit}>
@@ -174,10 +195,43 @@ export function DispatchManagementPage() {
                   <option value="">-- Choose Volunteer --</option>
                   {volunteers.map((v) => (
                     <option key={v.id} value={v.id}>
-                      {v.name} ({v.zone} - Status: {v.status})
+                      {v.name} ({v.zone || 'General'} - Status: {v.status})
                     </option>
                   ))}
                 </select>
+              </div>
+            </div>
+
+            {/* Inventory Stock Allocation */}
+            <div className="row g-3 mb-3 bg-light p-3 rounded-3 border">
+              <div className="col-12 col-md-8">
+                <label className="form-label fw-semibold text-dark fs-7">
+                  <i className="bi bi-box-seam text-primary me-1"></i> Allocate Relief Stock Item (Optional)
+                </label>
+                <select
+                  className="form-select"
+                  value={selectedInventoryId}
+                  onChange={(e) => setSelectedInventoryId(e.target.value)}
+                >
+                  <option value="">-- No Stock Deduction --</option>
+                  {inventoryList.map((item) => (
+                    <option key={item.id} value={item.id} disabled={item.quantity <= 0}>
+                      {item.name} — Available: {item.quantity} units
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="col-12 col-md-4">
+                <label className="form-label fw-semibold text-dark fs-7">Quantity to Deduct</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  min="1"
+                  value={quantityDeducted}
+                  onChange={(e) => setQuantityDeducted(e.target.value)}
+                  disabled={!selectedInventoryId}
+                />
               </div>
             </div>
 
@@ -187,7 +241,7 @@ export function DispatchManagementPage() {
               <input
                 type="text"
                 className="form-control"
-                placeholder="e.g. Priority dispatch for elderly assistance. Pick up 20L water from Kurla hub."
+                placeholder="e.g. Priority dispatch for elderly assistance. Pick up food packets from hub."
                 value={dispatchNotes}
                 onChange={(e) => setDispatchNotes(e.target.value)}
               />
@@ -201,7 +255,7 @@ export function DispatchManagementPage() {
               >
                 {assigning ? (
                   <>
-                    <span className="spinner-border spinner-border-sm me-2"></span> Assigning...
+                    <span className="spinner-border spinner-border-sm me-2"></span> Assigning & Deducting Stock...
                   </>
                 ) : (
                   <>
@@ -240,7 +294,8 @@ export function DispatchManagementPage() {
                     <tr>
                       <th className="ps-4">Dispatch ID</th>
                       <th>SOS Ref ID</th>
-                      <th>Citizen Name</th>
+                      <th>Citizen</th>
+                      <th>Volunteer</th>
                       <th>Urgency</th>
                       <th>Dispatch Status</th>
                       <th>Assigned Date</th>
@@ -254,7 +309,19 @@ export function DispatchManagementPage() {
                         <td className="fw-semibold text-dark">{d.sosId}</td>
                         <td>
                           <div className="fw-medium text-dark">{d.citizenName}</div>
-                          <div className="fs-7 text-muted">{d.citizenPhone}</div>
+                          {d.citizenPhone && (
+                            <a href={`tel:${d.citizenPhone}`} className="fs-7 text-success text-decoration-none">
+                              <i className="bi bi-telephone-fill me-1"></i>{d.citizenPhone}
+                            </a>
+                          )}
+                        </td>
+                        <td>
+                          <div className="fw-medium text-dark">{d.volunteerName || 'Unassigned'}</div>
+                          {d.volunteerPhone && (
+                            <a href={`tel:${d.volunteerPhone}`} className="fs-7 text-primary text-decoration-none">
+                              <i className="bi bi-telephone-fill me-1"></i>{d.volunteerPhone}
+                            </a>
+                          )}
                         </td>
                         <td>
                           <span className={`badge ${getUrgencyBadgeClass(d.urgencyLevel)} px-2 py-1`}>

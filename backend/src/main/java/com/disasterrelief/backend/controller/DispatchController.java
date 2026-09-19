@@ -12,6 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import com.disasterrelief.backend.model.TaskStatus;
 
 import java.util.List;
 
@@ -40,17 +45,27 @@ public class DispatchController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DispatchResponse>> getAllDispatchTasks() {
-        List<DispatchResponse> response = dispatchService.getAllDispatchTasks();
+    public ResponseEntity<Page<DispatchResponse>> getAllDispatchTasks(
+            @RequestParam(required = false) TaskStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("assignedAt").descending());
+        Page<DispatchResponse> response = dispatchService.getAllDispatchTasks(status, pageable);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<DispatchResponse>> getMyDispatchTasks(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Page<DispatchResponse>> getMyDispatchTasks(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(required = false) TaskStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+            
         User volunteer = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
 
-        List<DispatchResponse> response = dispatchService.getVolunteerDispatchTasks(volunteer);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("assignedAt").descending());
+        Page<DispatchResponse> response = dispatchService.getVolunteerDispatchTasks(volunteer, status, pageable);
         return ResponseEntity.ok(response);
     }
 

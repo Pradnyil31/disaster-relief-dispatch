@@ -12,6 +12,8 @@ import com.disasterrelief.backend.repository.TaskStatusLogRepository;
 import com.disasterrelief.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -63,12 +65,18 @@ public class DispatchService {
             inventoryService.deductStock(request.getInventoryItemId(), request.getQuantityDeducted());
         }
 
+        String cleanNotes = request.getNotes() != null ? request.getNotes().trim() : null;
+
         DispatchTask task = DispatchTask.builder()
                 .sosRequest(sosRequest)
                 .volunteer(volunteer)
                 .status(TaskStatus.ASSIGNED)
-                .notes(request.getNotes())
+                .notes(cleanNotes)
                 .build();
+
+        // Update volunteer status to BUSY
+        volunteer.setVolunteerStatus(VolunteerStatus.BUSY);
+        userRepository.save(volunteer);
 
         DispatchTask savedTask = dispatchTaskRepository.save(task);
 
@@ -101,12 +109,16 @@ public class DispatchService {
 
         task.setStatus(targetStatus);
         if (request.getNotes() != null && !request.getNotes().isBlank()) {
-            task.setNotes(request.getNotes());
+            task.setNotes(request.getNotes().trim());
         }
 
         if (targetStatus == TaskStatus.DELIVERED) {
             task.setDeliveredAt(LocalDateTime.now());
             task.getSosRequest().setStatus(RequestStatus.DELIVERED);
+            if (task.getVolunteer() != null) {
+                task.getVolunteer().setVolunteerStatus(VolunteerStatus.AVAILABLE);
+                userRepository.save(task.getVolunteer());
+            }
         } else if (targetStatus == TaskStatus.EN_ROUTE) {
             task.setEnRouteAt(LocalDateTime.now());
             task.getSosRequest().setStatus(RequestStatus.EN_ROUTE);
@@ -128,17 +140,25 @@ public class DispatchService {
     }
 
     @Transactional(readOnly = true)
-    public List<DispatchResponse> getAllDispatchTasks() {
-        return dispatchTaskRepository.findAll().stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<DispatchResponse> getAllDispatchTasks(TaskStatus status, Pageable pageable) {
+        Page<DispatchTask> page;
+        if (status != null) {
+            page = dispatchTaskRepository.findByStatus(status, pageable);
+        } else {
+            page = dispatchTaskRepository.findAll(pageable);
+        }
+        return page.map(this::mapToResponse);
     }
 
     @Transactional(readOnly = true)
-    public List<DispatchResponse> getVolunteerDispatchTasks(User volunteer) {
-        return dispatchTaskRepository.findByVolunteerOrderByAssignedAtDesc(volunteer).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<DispatchResponse> getVolunteerDispatchTasks(User volunteer, TaskStatus status, Pageable pageable) {
+        Page<DispatchTask> page;
+        if (status != null) {
+            page = dispatchTaskRepository.findByVolunteerAndStatus(volunteer, status, pageable);
+        } else {
+            page = dispatchTaskRepository.findByVolunteer(volunteer, pageable);
+        }
+        return page.map(this::mapToResponse);
     }
 
     @Transactional(readOnly = true)
@@ -165,19 +185,30 @@ public class DispatchService {
         User citizen = sos != null ? sos.getCitizen() : null;
         User volunteer = task.getVolunteer();
 
+        // Resolve citizen phone: prefer SOS-level citizenPhone, fall back to user profile phone
+        String citizenPhone = (sos != null && sos.getCitizenPhone() != null)
+                ? sos.getCitizenPhone()
+                : (citizen != null ? citizen.getPhone() : null);
+
+        List<TaskStatusLog> history = taskStatusLogRepository.findByDispatchTaskOrderByChangedAtDesc(task);
+
         return DispatchResponse.builder()
                 .id(task.getId())
-                .sosRequestId(sos != null ? sos.getId() : null)
+                .sosId(sos != null ? sos.getId() : null)
                 .citizenName(citizen != null ? citizen.getName() : "SMS Requester")
-                .locationAddress(sos != null ? sos.getLocationAddress() : null)
+                .citizenPhone(citizenPhone)
+                .locationName(sos != null ? sos.getLocationName() : null)
                 .urgencyLevel(sos != null ? sos.getUrgencyLevel() : null)
+                .requiredSupplies(sos != null ? sos.getRequiredSupplies() : new java.util.ArrayList<>())
                 .volunteerId(volunteer != null ? volunteer.getId() : null)
                 .volunteerName(volunteer != null ? volunteer.getName() : null)
+                .volunteerPhone(volunteer != null ? volunteer.getPhone() : null)
                 .status(task.getStatus())
                 .notes(task.getNotes())
                 .assignedAt(task.getAssignedAt())
                 .enRouteAt(task.getEnRouteAt())
                 .deliveredAt(task.getDeliveredAt())
+                .history(history)
                 .build();
     }
 }

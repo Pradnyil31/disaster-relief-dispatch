@@ -15,15 +15,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class DispatchResponse {
     private Long id;
-    private Long sosRequestId;
+    private Long sosId;
     private String citizenName;
-    private String locationAddress;
+    private String citizenPhone;
+    private String locationName;
     private UrgencyLevel urgencyLevel;
+    private java.util.List<com.disasterrelief.backend.model.ReliefItem> requiredSupplies;
     private Long volunteerId;
     private String volunteerName;
+    private String volunteerPhone;
     private TaskStatus status;
     private String notes;
     private LocalDateTime assignedAt;
     private LocalDateTime enRouteAt;
     private LocalDateTime deliveredAt;
+    private java.util.List<com.disasterrelief.backend.model.TaskStatusLog> history;
 }

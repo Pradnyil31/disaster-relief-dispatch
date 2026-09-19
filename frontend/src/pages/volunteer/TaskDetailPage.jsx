@@ -124,7 +124,7 @@ export function TaskDetailPage() {
           </div>
         </div>
 
-        {/* Status Workflow Action Stepper (FR-4.3) */}
+        {/* Status Workflow Action Stepper */}
         <div className="card border-0 shadow-sm rounded-3 mb-4 p-4 bg-white">
           <h5 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
             <i className="bi bi-arrow-right-circle-fill text-primary"></i> Mission Progress Tracker
@@ -277,10 +277,10 @@ export function TaskDetailPage() {
                 </div>
               </div>
 
-              {/* Status Audit Log (FR-4.3) */}
+              {/* Status Audit Log */}
               <div>
                 <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-1">
-                  <i className="bi bi-clock-history text-secondary"></i> Status Audit History (FR-4.3)
+                  <i className="bi bi-clock-history text-secondary"></i> Status Audit History
                 </h6>
                 <div className="timeline-list border-start border-2 ps-3 ms-2">
                   {task.history?.map((h, idx) => (
