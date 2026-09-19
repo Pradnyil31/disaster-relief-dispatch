@@ -10,14 +10,14 @@ import { useNotification } from '../../context/NotificationContext';
 import { URGENCY_LEVELS } from '../../utils/constants';
 
 const SUPPLY_CATEGORIES = [
-  { value: 'water', label: 'Water & Hydration' },
-  { value: 'food', label: 'Food & Rations' },
-  { value: 'medical', label: 'Medical Supplies' },
-  { value: 'shelter', label: 'Shelter & Blankets' },
-  { value: 'clothing', label: 'Clothing' },
-  { value: 'fuel', label: 'Fuel & Energy' },
-  { value: 'rescue', label: 'Rescue Equipment' },
-  { value: 'communication', label: 'Communication Devices' },
+  { value: 'WATER_AND_HYDRATION', label: 'Water & Hydration' },
+  { value: 'FOOD_AND_RATIONS', label: 'Food & Rations' },
+  { value: 'MEDICAL_SUPPLIES', label: 'Medical Supplies' },
+  { value: 'SHELTER_AND_BLANKETS', label: 'Shelter & Blankets' },
+  { value: 'CLOTHING', label: 'Clothing' },
+  { value: 'FUEL_AND_ENERGY', label: 'Fuel & Energy' },
+  { value: 'RESCUE_EQUIPMENT', label: 'Rescue Equipment' },
+  { value: 'COMMUNICATION_DEVICES', label: 'Communication Devices' },
 ];
 
 const URGENCY_CONFIG = {
@@ -74,7 +74,7 @@ export function SubmitSOSPage() {
   const onSubmit = async (data) => {
     setSubmitting(true);
     try {
-      await sosApi.create(data);
+      await sosApi.create(data, user);
       notify({ message: 'SOS request submitted successfully. Help is on the way!', severity: 'success' });
       navigate('/citizen/sos/history');
     } catch (err) {

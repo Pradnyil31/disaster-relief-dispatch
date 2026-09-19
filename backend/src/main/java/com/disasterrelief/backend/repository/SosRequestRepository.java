@@ -17,4 +17,9 @@ public interface SosRequestRepository extends JpaRepository<SosRequest, Long> {
     Page<SosRequest> findByUrgencyLevel(UrgencyLevel urgencyLevel, Pageable pageable);
     Page<SosRequest> findByStatus(RequestStatus status, Pageable pageable);
     Page<SosRequest> findByUrgencyLevelAndStatus(UrgencyLevel urgencyLevel, RequestStatus status, Pageable pageable);
+    
+    Page<SosRequest> findByCitizen(User citizen, Pageable pageable);
+    Page<SosRequest> findByCitizenAndUrgencyLevel(User citizen, UrgencyLevel urgencyLevel, Pageable pageable);
+    Page<SosRequest> findByCitizenAndStatus(User citizen, RequestStatus status, Pageable pageable);
+    Page<SosRequest> findByCitizenAndUrgencyLevelAndStatus(User citizen, UrgencyLevel urgencyLevel, RequestStatus status, Pageable pageable);
 }

@@ -3,6 +3,7 @@ package com.disasterrelief.backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "sos_requests")
@@ -32,18 +33,21 @@ public class SosRequest {
     private Double latitude;
     private Double longitude;
 
-    @Column(name = "location_address")
-    private String locationAddress;
+    @Column(name = "location_name")
+    private String locationName;
 
-    @Column(name = "supplies_needed", columnDefinition = "TEXT")
-    private String suppliesNeeded;
+    @ElementCollection
+    @CollectionTable(name = "sos_required_supplies", joinColumns = @JoinColumn(name = "sos_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "supply")
+    private List<ReliefItem> requiredSupplies;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RequestSource source;
 
-    @Column(name = "phone_number")
-    private String phoneNumber;
+    @Column(name = "citizen_phone")
+    private String citizenPhone;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

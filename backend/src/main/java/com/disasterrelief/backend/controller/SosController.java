@@ -57,7 +57,7 @@ public class SosController {
 
     @GetMapping
     public ResponseEntity<Page<SosResponse>> getAllSos(
-            @RequestParam(required = false) UrgencyLevel urgency,
+            @RequestParam(value = "urgencyLevel", required = false) UrgencyLevel urgency,
             @RequestParam(required = false) RequestStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -68,11 +68,18 @@ public class SosController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<SosResponse>> getMySos(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Page<SosResponse>> getMySos(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(value = "urgencyLevel", required = false) UrgencyLevel urgency,
+            @RequestParam(required = false) RequestStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+            
         User citizen = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
 
-        List<SosResponse> response = sosService.getCitizenSosRequests(citizen);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<SosResponse> response = sosService.getCitizenSosRequests(citizen, urgency, status, pageable);
         return ResponseEntity.ok(response);
     }
 

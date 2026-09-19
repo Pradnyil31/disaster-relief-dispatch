@@ -26,16 +26,20 @@ public class SosService {
 
     @Transactional
     public SosResponse submitSosRequest(User citizen, SosSubmitRequest request) {
+        String phone = request.getCitizenPhone() != null && !request.getCitizenPhone().isBlank()
+                ? request.getCitizenPhone().trim()
+                : citizen.getPhone();
+
         SosRequest sosRequest = SosRequest.builder()
                 .citizen(citizen)
                 .urgencyLevel(request.getUrgencyLevel())
                 .status(RequestStatus.PENDING)
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
-                .locationAddress(request.getLocationAddress())
-                .suppliesNeeded(request.getSuppliesNeeded())
+                .locationName(request.getLocationName() != null ? request.getLocationName().trim() : null)
+                .requiredSupplies(request.getRequiredSupplies() != null ? request.getRequiredSupplies() : new java.util.ArrayList<>())
                 .source(RequestSource.WEB)
-                .phoneNumber(request.getPhoneNumber() != null ? request.getPhoneNumber() : citizen.getPhone())
+                .citizenPhone(phone)
                 .build();
 
         SosRequest saved = sosRequestRepository.save(sosRequest);
@@ -44,16 +48,18 @@ public class SosService {
 
     @Transactional
     public SosResponse processSmsWebhook(String fromPhone, String bodyText) {
-        UrgencyLevel urgencyLevel = smsParserService.parseUrgency(bodyText);
+        String cleanBody = bodyText != null ? bodyText.trim() : "";
+        String cleanPhone = fromPhone != null ? fromPhone.trim() : "";
+        UrgencyLevel urgencyLevel = smsParserService.parseUrgency(cleanBody);
 
         SosRequest sosRequest = SosRequest.builder()
                 .citizen(null)
                 .urgencyLevel(urgencyLevel)
                 .status(RequestStatus.PENDING)
-                .locationAddress("Extracted from SMS: " + bodyText)
-                .suppliesNeeded(bodyText)
+                .locationName("Extracted from SMS: " + cleanBody)
+                .requiredSupplies(new java.util.ArrayList<>())
                 .source(RequestSource.SMS)
-                .phoneNumber(fromPhone)
+                .citizenPhone(cleanPhone)
                 .build();
 
         SosRequest saved = sosRequestRepository.save(sosRequest);
@@ -76,10 +82,18 @@ public class SosService {
     }
 
     @Transactional(readOnly = true)
-    public List<SosResponse> getCitizenSosRequests(User citizen) {
-        return sosRequestRepository.findByCitizenOrderByCreatedAtDesc(citizen).stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<SosResponse> getCitizenSosRequests(User citizen, UrgencyLevel urgency, RequestStatus status, Pageable pageable) {
+        Page<SosRequest> page;
+        if (urgency != null && status != null) {
+            page = sosRequestRepository.findByCitizenAndUrgencyLevelAndStatus(citizen, urgency, status, pageable);
+        } else if (urgency != null) {
+            page = sosRequestRepository.findByCitizenAndUrgencyLevel(citizen, urgency, pageable);
+        } else if (status != null) {
+            page = sosRequestRepository.findByCitizenAndStatus(citizen, status, pageable);
+        } else {
+            page = sosRequestRepository.findByCitizen(citizen, pageable);
+        }
+        return page.map(this::mapToResponse);
     }
 
     @Transactional(readOnly = true)
@@ -100,18 +114,22 @@ public class SosService {
     }
 
     private SosResponse mapToResponse(SosRequest sosRequest) {
+        User citizen = sosRequest.getCitizen();
+        String phone = sosRequest.getCitizenPhone() != null
+                ? sosRequest.getCitizenPhone()
+                : (citizen != null ? citizen.getPhone() : null);
         return SosResponse.builder()
                 .id(sosRequest.getId())
-                .citizenId(sosRequest.getCitizen() != null ? sosRequest.getCitizen().getId() : null)
-                .citizenName(sosRequest.getCitizen() != null ? sosRequest.getCitizen().getName() : "SMS Requester")
+                .citizenId(citizen != null ? citizen.getId() : null)
+                .citizenName(citizen != null ? citizen.getName() : "SMS Requester")
                 .urgencyLevel(sosRequest.getUrgencyLevel())
                 .status(sosRequest.getStatus())
                 .latitude(sosRequest.getLatitude())
                 .longitude(sosRequest.getLongitude())
-                .locationAddress(sosRequest.getLocationAddress())
-                .suppliesNeeded(sosRequest.getSuppliesNeeded())
+                .locationName(sosRequest.getLocationName())
+                .requiredSupplies(sosRequest.getRequiredSupplies())
                 .source(sosRequest.getSource())
-                .phoneNumber(sosRequest.getPhoneNumber())
+                .citizenPhone(phone)
                 .createdAt(sosRequest.getCreatedAt())
                 .updatedAt(sosRequest.getUpdatedAt())
                 .build();

@@ -11,6 +11,7 @@ export function SOSManagementPage() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [urgencyFilter, setUrgencyFilter] = useState('ALL');
+  const [isNavCollapsed, setIsNavCollapsed] = useState(true);
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -47,21 +48,30 @@ export function SOSManagementPage() {
             <i className="bi bi-shield-lock-fill text-warning"></i>
             Admin Command Center
           </Link>
-          <div className="navbar-nav ms-auto align-items-center gap-2">
-            <Link to="/admin" className="btn btn-outline-light btn-sm rounded-pill px-3 me-2">
-              <i className="bi bi-speedometer2 me-1"></i> Dashboard
-            </Link>
-            <div className="d-flex align-items-center gap-2 text-white bg-white bg-opacity-10 px-3 py-1 rounded-pill">
-              <i className="bi bi-person-badge"></i>
-              <span className="fw-medium">{user?.name || 'Admin'}</span>
+          <button 
+            className="navbar-toggler border-0 shadow-none" 
+            type="button" 
+            onClick={() => setIsNavCollapsed(!isNavCollapsed)}
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className={`${isNavCollapsed ? 'collapse' : ''} navbar-collapse justify-content-end mt-3 mt-lg-0`}>
+            <div className="navbar-nav align-items-center gap-2">
+              <Link to="/admin" className="nav-custom-link">
+                <i className="bi bi-speedometer2"></i> Dashboard
+              </Link>
+              <div className="nav-custom-badge">
+                <i className="bi bi-person-circle fs-5"></i>
+                <span className="text-truncate" style={{ maxWidth: '120px' }}>{user?.name || 'Admin'}</span>
+              </div>
+              <button
+                type="button"
+                className="nav-logout-btn"
+                onClick={logout}
+              >
+                Logout <i className="bi bi-box-arrow-right"></i>
+              </button>
             </div>
-            <button
-              type="button"
-              className="btn btn-outline-light btn-sm px-3 rounded-pill hover-lift me-1"
-              onClick={logout}
-            >
-              Logout
-            </button>
           </div>
         </div>
       </nav>
@@ -70,7 +80,7 @@ export function SOSManagementPage() {
         {/* Header */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
           <div>
-            <h2 className="fw-bolder text-dark mb-1">SOS Emergency Requests (FR-2.4)</h2>
+            <h2 className="fw-bolder text-dark mb-1">SOS Emergency Requests</h2>
             <p className="text-muted mb-0">Filter, search, and assign pending emergency distress calls to volunteers.</p>
           </div>
           <Link to="/admin/dispatch" className="btn btn-warning rounded-pill px-4 shadow-sm text-dark fw-bold">
@@ -105,9 +115,9 @@ export function SOSManagementPage() {
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
                 <option value="ALL">All Statuses</option>
-                <option value="PENDING">Pending Dispatch</option>
-                <option value="DISPATCHED">Dispatched</option>
-                <option value="RESOLVED">Resolved</option>
+                <option value="PENDING">Pending</option>
+                <option value="ASSIGNED">Assigned</option>
+                <option value="DELIVERED">Delivered</option>
               </select>
             </div>
 
@@ -187,13 +197,31 @@ export function SOSManagementPage() {
                         </td>
                         <td className="fs-7 text-muted">{formatDate(r.createdAt)}</td>
                         <td className="pe-4 text-end">
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-warning rounded-pill px-3 text-dark fw-bold me-1"
-                            onClick={() => handleAssignDispatch(r)}
-                          >
-                            <i className="bi bi-truck me-1"></i> Assign
-                          </button>
+                          {r.status === 'PENDING' ? (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-warning rounded-pill px-3 text-dark fw-bold me-1"
+                              onClick={() => handleAssignDispatch(r)}
+                            >
+                              <i className="bi bi-truck me-1"></i> Assign
+                            </button>
+                          ) : (r.status === 'DELIVERED' || r.status === 'CLOSED') ? (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-success rounded-pill px-3 me-1"
+                              disabled
+                            >
+                              <i className="bi bi-check-all me-1"></i> Resolved
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-secondary rounded-pill px-3 me-1"
+                              disabled
+                            >
+                              <i className="bi bi-check-circle me-1"></i> Assigned
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}

@@ -12,7 +12,7 @@ public class SosSubmitRequest {
 
     private Double latitude;
     private Double longitude;
-    private String locationAddress;
-    private String suppliesNeeded;
-    private String phoneNumber;
+    private String locationName;
+    private java.util.List<com.disasterrelief.backend.model.ReliefItem> requiredSupplies;
+    private String citizenPhone;
 }

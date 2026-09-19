@@ -22,10 +22,10 @@ public class SosResponse {
     private RequestStatus status;
     private Double latitude;
     private Double longitude;
-    private String locationAddress;
-    private String suppliesNeeded;
+    private String locationName;
+    private java.util.List<com.disasterrelief.backend.model.ReliefItem> requiredSupplies;
     private RequestSource source;
-    private String phoneNumber;
+    private String citizenPhone;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
