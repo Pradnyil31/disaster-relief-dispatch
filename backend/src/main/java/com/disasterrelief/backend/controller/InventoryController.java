@@ -30,7 +30,7 @@ public class InventoryController {
 
     @GetMapping
     public ResponseEntity<Page<InventoryResponse>> getAllItems(
-            @RequestParam(required = false) String category,
+            @RequestParam(required = false) com.disasterrelief.backend.model.ReliefItem category,
             @RequestParam(required = false) Boolean lowStock,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {

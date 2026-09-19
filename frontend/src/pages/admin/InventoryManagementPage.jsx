@@ -11,17 +11,17 @@ export function InventoryManagementPage() {
   const [lowStockItems, setLowStockItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState('ALL');
-  const [searchTerm, setSearchTerm] = useState('');
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
+  const [showLowStock, setShowLowStock] = useState(false);
+  const [isNavCollapsed, setIsNavCollapsed] = useState(true);
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    category: 'Water',
+    category: 'WATER_AND_HYDRATION',
     quantity: '',
     minimumThreshold: '20',
-    unit: 'Units',
   });
   const [saving, setSaving] = useState(false);
 
@@ -29,7 +29,7 @@ export function InventoryManagementPage() {
     try {
       setLoading(true);
       const [allRes, lowRes] = await Promise.all([
-        inventoryApi.list({ category: categoryFilter, search: searchTerm }),
+        inventoryApi.list({ category: categoryFilter }),
         inventoryApi.lowStock(),
       ]);
       setItems(allRes.content || []);
@@ -43,16 +43,15 @@ export function InventoryManagementPage() {
 
   useEffect(() => {
     fetchInventory();
-  }, [categoryFilter, searchTerm]);
+  }, [categoryFilter]);
 
   const handleOpenCreateModal = () => {
     setEditingItem(null);
     setFormData({
       name: '',
-      category: 'Water',
+      category: 'WATER_AND_HYDRATION',
       quantity: '',
       minimumThreshold: '20',
-      unit: 'Units',
     });
     setShowModal(true);
   };
@@ -64,7 +63,6 @@ export function InventoryManagementPage() {
       category: item.category,
       quantity: item.quantity.toString(),
       minimumThreshold: item.minimumThreshold.toString(),
-      unit: item.unit || 'Units',
     });
     setShowModal(true);
   };
@@ -113,21 +111,30 @@ export function InventoryManagementPage() {
             <i className="bi bi-shield-lock-fill text-warning"></i>
             Admin Command Center
           </Link>
-          <div className="navbar-nav ms-auto align-items-center gap-2">
-            <Link to="/admin" className="btn btn-outline-light btn-sm rounded-pill px-3 me-2">
-              <i className="bi bi-speedometer2 me-1"></i> Dashboard
-            </Link>
-            <div className="d-flex align-items-center gap-2 text-white bg-white bg-opacity-10 px-3 py-1 rounded-pill">
-              <i className="bi bi-person-badge"></i>
-              <span className="fw-medium">{user?.name || 'Admin'}</span>
+          <button 
+            className="navbar-toggler border-0 shadow-none" 
+            type="button" 
+            onClick={() => setIsNavCollapsed(!isNavCollapsed)}
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className={`${isNavCollapsed ? 'collapse' : ''} navbar-collapse justify-content-end mt-3 mt-lg-0`}>
+            <div className="navbar-nav align-items-center gap-2">
+              <Link to="/admin" className="nav-custom-link">
+                <i className="bi bi-speedometer2"></i> Dashboard
+              </Link>
+              <div className="nav-custom-badge">
+                <i className="bi bi-person-circle fs-5"></i>
+                <span className="text-truncate" style={{ maxWidth: '120px' }}>{user?.name || 'Admin'}</span>
+              </div>
+              <button
+                type="button"
+                className="nav-logout-btn"
+                onClick={logout}
+              >
+                Logout <i className="bi bi-box-arrow-right"></i>
+              </button>
             </div>
-            <button
-              type="button"
-              className="btn btn-outline-light btn-sm px-3 rounded-pill hover-lift me-1"
-              onClick={logout}
-            >
-              Logout
-            </button>
           </div>
         </div>
       </nav>
@@ -148,58 +155,47 @@ export function InventoryManagementPage() {
           </button>
         </div>
 
-        {/* Low Stock Alert Banner (FR-3.3) */}
+        {/* Low Stock Alert Banner */}
         {lowStockItems.length > 0 && (
           <div className="alert alert-danger border-0 shadow-sm rounded-3 d-flex align-items-center mb-4 p-3" role="alert">
             <div className="bg-danger text-white rounded-circle p-2 me-3 flex-shrink-0 d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
               <i className="bi bi-exclamation-triangle-fill fs-5"></i>
             </div>
             <div className="flex-grow-1">
-              <h6 className="fw-bold mb-1 text-danger">Low Stock Warning Alert (FR-3.3)</h6>
+              <h6 className="fw-bold mb-1 text-danger">Low Stock Warning Alert</h6>
               <div className="fs-7 text-dark">
                 The following {lowStockItems.length} item(s) are at or below their minimum threshold:{' '}
                 <strong className="text-danger">
-                  {lowStockItems.map(i => `${i.name} (${i.quantity} ${i.unit || 'units'} left, min: ${i.minimumThreshold})`).join(', ')}
+                  {lowStockItems.map(i => `${i.name} (${i.quantity} left, min: ${i.minimumThreshold})`).join(', ')}
                 </strong>
               </div>
             </div>
           </div>
         )}
 
-        {/* Filter Controls Bar (FR-3.4) */}
+        {/* Filter Controls Bar */}
         <div className="card border-0 shadow-sm rounded-3 mb-4 p-3 bg-white">
           <div className="row g-3 align-items-center">
             <div className="col-12 col-md-6">
-              <label className="form-label fs-7 text-uppercase fw-semibold text-muted mb-1">Category Filter</label>
+              <label className="form-label fs-7 text-uppercase fw-semibold text-muted mb-1">Filter by Category</label>
               <select
                 className="form-select form-select-sm"
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
               >
                 <option value="ALL">All Categories</option>
-                <option value="Water">Water</option>
-                <option value="Food">Food</option>
-                <option value="Medical">Medical</option>
-                <option value="Shelter">Shelter</option>
-                <option value="Hygiene">Hygiene</option>
-                <option value="Equipment">Equipment</option>
-                <option value="Donated Goods">Donated Goods</option>
+                <option value="WATER_AND_HYDRATION">Water & Hydration</option>
+                <option value="FOOD_AND_RATIONS">Food & Rations</option>
+                <option value="MEDICAL_SUPPLIES">Medical Supplies</option>
+                <option value="SHELTER_AND_BLANKETS">Shelter & Blankets</option>
+                <option value="CLOTHING">Clothing</option>
+                <option value="FUEL_AND_ENERGY">Fuel & Energy</option>
+                <option value="RESCUE_EQUIPMENT">Rescue Equipment</option>
+                <option value="COMMUNICATION_DEVICES">Communication Devices</option>
               </select>
             </div>
 
-            <div className="col-12 col-md-6">
-              <label className="form-label fs-7 text-uppercase fw-semibold text-muted mb-1">Search Inventory</label>
-              <div className="input-group input-group-sm">
-                <span className="input-group-text bg-light"><i className="bi bi-search"></i></span>
-                <input
-                  type="text"
-                  className="form-control bg-light"
-                  placeholder="Search item name or category..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
+
           </div>
         </div>
 
@@ -250,8 +246,7 @@ export function InventoryManagementPage() {
                             <span className="badge bg-light text-dark border fw-normal">{i.category}</span>
                           </td>
                           <td>
-                            <span className="fs-6 fw-bold text-dark">{i.quantity}</span>{' '}
-                            <span className="fs-7 text-muted">{i.unit || 'Units'}</span>
+                            <span className="fs-6 fw-bold text-dark">{i.quantity}</span>
                           </td>
                           <td className="fs-7 text-muted">{i.minimumThreshold}</td>
                           <td>
@@ -306,11 +301,11 @@ export function InventoryManagementPage() {
                 </div>
                 <div className="modal-body p-4">
                   <div className="mb-3">
-                    <label className="form-label fw-semibold text-dark fs-7">Item Name *</label>
+                    <label className="form-label fw-semibold text-dark fs-7">Item Name (Custom) *</label>
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="e.g. Drinking Water (20L Cans)"
+                      placeholder="e.g. Paracetamol"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       required
@@ -318,33 +313,26 @@ export function InventoryManagementPage() {
                   </div>
 
                   <div className="row g-3 mb-3">
-                    <div className="col-6">
+                    <div className="col-12">
                       <label className="form-label fw-semibold text-dark fs-7">Category *</label>
                       <select
                         className="form-select"
                         value={formData.category}
                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                       >
-                        <option value="Water">Water</option>
-                        <option value="Food">Food</option>
-                        <option value="Medical">Medical</option>
-                        <option value="Shelter">Shelter</option>
-                        <option value="Hygiene">Hygiene</option>
-                        <option value="Equipment">Equipment</option>
+                        <option value="WATER_AND_HYDRATION">Water & Hydration</option>
+                        <option value="FOOD_AND_RATIONS">Food & Rations</option>
+                        <option value="MEDICAL_SUPPLIES">Medical Supplies</option>
+                        <option value="SHELTER_AND_BLANKETS">Shelter & Blankets</option>
+                        <option value="CLOTHING">Clothing</option>
+                        <option value="FUEL_AND_ENERGY">Fuel & Energy</option>
+                        <option value="RESCUE_EQUIPMENT">Rescue Equipment</option>
+                        <option value="COMMUNICATION_DEVICES">Communication Devices</option>
                       </select>
                     </div>
-
-                    <div className="col-6">
-                      <label className="form-label fw-semibold text-dark fs-7">Unit of Measure</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="e.g. Cans, Kits, Packs"
-                        value={formData.unit}
-                        onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                      />
-                    </div>
                   </div>
+
+
 
                   <div className="row g-3">
                     <div className="col-6">

@@ -22,11 +22,20 @@ public class InventoryService {
 
     @Transactional
     public InventoryResponse createInventoryItem(InventoryRequest request) {
+        String cleanName = request.getName().trim().toUpperCase();
+        
+        java.util.Optional<InventoryItem> existing = inventoryRepository.findByNameIgnoreCase(cleanName);
+        if (existing.isPresent()) {
+            InventoryItem item = existing.get();
+            item.setQuantity(item.getQuantity() + request.getQuantity());
+            // Optionally update threshold or category if needed
+            return mapToResponse(inventoryRepository.save(item));
+        }
+
         InventoryItem item = InventoryItem.builder()
-                .name(request.getName())
-                .category(request.getCategory().toUpperCase())
+                .name(cleanName)
+                .category(request.getCategory())
                 .quantity(request.getQuantity())
-                .unit(request.getUnit())
                 .minimumThreshold(request.getMinimumThreshold())
                 .build();
 
@@ -35,15 +44,15 @@ public class InventoryService {
     }
 
     @Transactional(readOnly = true)
-    public Page<InventoryResponse> getAllInventoryItems(String category, Boolean lowStock, Pageable pageable) {
+    public Page<InventoryResponse> getAllInventoryItems(com.disasterrelief.backend.model.ReliefItem category, Boolean lowStock, Pageable pageable) {
         Page<InventoryItem> page;
-        boolean filterCategory = category != null && !category.isBlank();
+        boolean filterCategory = category != null;
         boolean filterLowStock = Boolean.TRUE.equals(lowStock);
 
         if (filterCategory && filterLowStock) {
-            page = inventoryRepository.findLowStockItemsByCategory(category.toUpperCase(), pageable);
+            page = inventoryRepository.findLowStockItemsByCategory(category, pageable);
         } else if (filterCategory) {
-            page = inventoryRepository.findByCategory(category.toUpperCase(), pageable);
+            page = inventoryRepository.findByCategory(category, pageable);
         } else if (filterLowStock) {
             page = inventoryRepository.findLowStockItems(pageable);
         } else {
@@ -64,10 +73,13 @@ public class InventoryService {
         InventoryItem item = inventoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Inventory item not found with id: " + id));
 
-        item.setName(request.getName());
-        item.setCategory(request.getCategory().toUpperCase());
+        if (request.getName() != null) {
+            item.setName(request.getName().trim().toUpperCase());
+        }
+        if (request.getCategory() != null) {
+            item.setCategory(request.getCategory());
+        }
         item.setQuantity(request.getQuantity());
-        item.setUnit(request.getUnit());
         item.setMinimumThreshold(request.getMinimumThreshold());
 
         InventoryItem updated = inventoryRepository.save(item);
@@ -101,7 +113,6 @@ public class InventoryService {
                 .name(item.getName())
                 .category(item.getCategory())
                 .quantity(item.getQuantity())
-                .unit(item.getUnit())
                 .minimumThreshold(item.getMinimumThreshold())
                 .lowStock(item.getQuantity() <= item.getMinimumThreshold())
                 .createdAt(item.getCreatedAt())

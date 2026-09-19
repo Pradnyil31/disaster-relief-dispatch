@@ -21,14 +21,12 @@ public class InventoryItem {
     @Column(nullable = false)
     private String name;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String category;
+    private ReliefItem category;
 
     @Column(nullable = false)
     private Integer quantity;
-
-    @Column(nullable = false)
-    private String unit;
 
     @Column(name = "minimum_threshold", nullable = false)
     private Integer minimumThreshold;

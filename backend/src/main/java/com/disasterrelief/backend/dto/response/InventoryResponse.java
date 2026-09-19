@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.disasterrelief.backend.model.ReliefItem;
 
 import java.time.LocalDateTime;
 
@@ -14,9 +15,8 @@ import java.time.LocalDateTime;
 public class InventoryResponse {
     private Long id;
     private String name;
-    private String category;
+    private ReliefItem category;
     private Integer quantity;
-    private String unit;
     private Integer minimumThreshold;
     private boolean lowStock;
     private LocalDateTime createdAt;
