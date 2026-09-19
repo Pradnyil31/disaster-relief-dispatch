@@ -1,15 +1,17 @@
 import { z } from 'zod';
 
 export const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().toLowerCase().trim().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 export const registerSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
+  name: z.string().trim().min(2, 'Name must be at least 2 characters'),
+  email: z.string().toLowerCase().trim().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+  phone: z.string().regex(/^\d{10}$/, 'Phone number must be exactly 10 digits'),
   role: z.enum(['CITIZEN', 'VOLUNTEER', 'DONOR']),
+  zone: z.string().optional(),
 });
 
 export const sosSchema = z.object({
@@ -17,22 +19,22 @@ export const sosSchema = z.object({
   longitude: z.number({ invalid_type_error: 'Location is required' }).min(-180).max(180, 'Invalid longitude'),
   urgencyLevel: z.enum(['HIGH', 'MEDIUM', 'LOW'], { errorMap: () => ({ message: 'Please select an urgency level' }) }),
   requiredSupplies: z.array(z.string()).min(1, 'Select at least one supply category'),
-  notes: z.string().max(1000).optional(),
+  notes: z.string().trim().max(1000).optional(),
 });
 
 export const inventorySchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  category: z.string().min(1, 'Category is required'),
+  name: z.string().trim().min(2, 'Name must be at least 2 characters'),
+  category: z.string().trim().min(1, 'Category is required'),
   quantity: z.number().int().min(0, 'Quantity cannot be negative'),
   minimumThreshold: z.number().int().min(0, 'Threshold cannot be negative'),
-  unit: z.string().optional(),
+  // Removed unit field
 });
 
 export const donationPledgeSchema = z.object({
-  donorName: z.string().min(2, 'Name is required'),
-  donorEmail: z.string().email('Invalid email'),
+  donorName: z.string().trim().min(2, 'Name is required'),
+  donorEmail: z.string().toLowerCase().trim().email('Invalid email'),
   items: z.array(z.object({
-    name: z.string().min(1),
+    name: z.string().trim().min(1),
     quantity: z.number().int().min(1),
   })).min(1, 'At least one item required'),
 });

@@ -32,11 +32,21 @@ public class User {
 
     private String phone;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "volunteer_status")
+    private VolunteerStatus volunteerStatus;
+
+    @Column
+    private String zone;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+        if (this.role == Role.VOLUNTEER && this.volunteerStatus == null) {
+            this.volunteerStatus = VolunteerStatus.AVAILABLE;
+        }
     }
 }

@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/donations").hasRole("ADMINISTRATOR")
                         .requestMatchers("/api/v1/donations/my").authenticated()
                         .requestMatchers("/api/v1/donations/{id}/approve").hasRole("ADMINISTRATOR")
+                        .requestMatchers("/api/v1/donations/{id}/verify-payment").hasRole("ADMINISTRATOR")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -87,7 +87,7 @@ export function CitizenDashboard() {
         <div className="card border-0 mb-4 animate-fade-in delay-300">
           <div className="card-header bg-white d-flex justify-content-between align-items-center py-3">
             <h5 className="fw-bold mb-0">Recent SOS Requests</h5>
-            <Link to="/citizen/sos" className="btn btn-sm btn-outline-secondary">View All</Link>
+            <Link to="/citizen/sos/history" className="btn btn-sm btn-outline-secondary">View All</Link>
           </div>
           <div className="card-body p-0">
             {/* Empty State */}

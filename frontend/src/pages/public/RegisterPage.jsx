@@ -13,9 +13,11 @@ export function RegisterPage() {
   const { notify } = useNotification();
   const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm({
     resolver: zodResolver(registerSchema),
   });
+  
+  const selectedRole = watch('role');
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -118,7 +120,24 @@ export function RegisterPage() {
               </div>
             </div>
 
-            <div className="mb-5">
+            <div className="mb-4">
+              <label htmlFor="phone" className="form-label">Phone Number</label>
+              <div className="position-relative">
+                <i className="bi bi-telephone position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
+                <input
+                  type="tel"
+                  id="phone"
+                  className={`form-control ps-5 py-2 ${errors.phone ? 'is-invalid' : ''}`}
+                  {...register('phone')}
+                  placeholder="10-digit mobile number"
+                  maxLength={10}
+                  disabled={loading}
+                />
+                {errors.phone && <div className="invalid-feedback">{errors.phone.message}</div>}
+              </div>
+            </div>
+
+            <div className={`mb-${selectedRole === 'VOLUNTEER' ? '4' : '5'}`}>
               <label htmlFor="role" className="form-label">I want to register as a...</label>
               <div className="position-relative">
                 <i className="bi bi-briefcase position-absolute top-50 translate-middle-y ms-3 text-muted" style={{ zIndex: 4 }}></i>
@@ -138,6 +157,29 @@ export function RegisterPage() {
                 {errors.role && <div className="invalid-feedback">{errors.role.message}</div>}
               </div>
             </div>
+
+            {selectedRole === 'VOLUNTEER' && (
+              <div className="mb-5 animate-fade-in">
+                <label htmlFor="zone" className="form-label">Preferred Operating Zone</label>
+                <div className="position-relative">
+                  <i className="bi bi-geo-alt position-absolute top-50 translate-middle-y ms-3 text-muted" style={{ zIndex: 4 }}></i>
+                  <select
+                    id="zone"
+                    className={`form-select ps-5 py-2 ${errors.zone ? 'is-invalid' : ''}`}
+                    {...register('zone')}
+                    disabled={loading}
+                  >
+                    <option value="">Select a zone</option>
+                    <option value="North Zone">North Zone</option>
+                    <option value="South Zone">South Zone</option>
+                    <option value="East Zone">East Zone</option>
+                    <option value="West Zone">West Zone</option>
+                    <option value="Central Zone">Central Zone</option>
+                  </select>
+                  {errors.zone && <div className="invalid-feedback">{errors.zone.message}</div>}
+                </div>
+              </div>
+            )}
 
             <button type="submit" className="btn btn-primary w-100 py-2 mb-3 shadow-sm hover-lift" disabled={loading}>
               {loading ? (

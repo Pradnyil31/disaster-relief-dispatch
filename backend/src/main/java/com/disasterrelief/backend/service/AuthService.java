@@ -31,16 +31,20 @@ public class AuthService {
     }
 
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
+        String email = request.getEmail().toLowerCase().trim();
+        String name = request.getName().trim();
+
+        if (userRepository.existsByEmail(email)) {
             throw new BusinessRuleException("Email is already registered");
         }
 
         User user = User.builder()
-                .name(request.getName())
-                .email(request.getEmail())
+                .name(name)
+                .email(email)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole())
                 .phone(request.getPhone())
+                .zone(request.getRole() == com.disasterrelief.backend.model.Role.VOLUNTEER && request.getZone() != null && !request.getZone().trim().isEmpty() ? request.getZone() : "General")
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -56,11 +60,13 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
+        String email = request.getEmail().toLowerCase().trim();
+
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(email, request.getPassword())
         );
 
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessRuleException("Invalid email or password"));
 
         String token = jwtTokenProvider.generateToken(user);
