@@ -1,22 +1,35 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 
 export function LandingPage() {
+  const [isNavCollapsed, setIsNavCollapsed] = useState(true);
   return (
     <div className="min-vh-100 d-flex flex-column animate-fade-in">
-      <nav className="navbar navbar-dark bg-primary fixed-top glass py-2" style={{ border: 'none', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        <div className="container d-flex align-items-center justify-content-between flex-nowrap">
+      <nav className="navbar navbar-expand-lg navbar-dark bg-primary fixed-top glass py-2" style={{ border: 'none', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+        <div className="container">
           <Link className="navbar-brand d-flex align-items-center gap-2 me-2 text-truncate fw-bold" to="/">
             <i className="bi bi-shield-check fs-4 text-warning flex-shrink-0"></i>
             <span className="text-truncate">Disaster Relief</span>
           </Link>
-          <div className="d-flex align-items-center gap-2 flex-shrink-0">
-            <Link className="btn btn-outline-light btn-sm px-3 rounded-pill" to="/login">Login</Link>
-            <Link className="btn btn-light text-primary btn-sm px-3 fw-bold rounded-pill shadow-sm hover-lift" to="/register">Register</Link>
+          <button 
+            className="navbar-toggler border-0 shadow-none bg-light bg-opacity-10 rounded-3 p-2" 
+            type="button" 
+            onClick={() => setIsNavCollapsed(!isNavCollapsed)}
+          >
+            <i className={`bi ${isNavCollapsed ? 'bi-list' : 'bi-x-lg'} fs-4 text-white`}></i>
+          </button>
+
+          <div className={`${isNavCollapsed ? 'collapse' : ''} navbar-collapse justify-content-end mt-3 mt-lg-0`}>
+            <div className="navbar-nav align-items-lg-center flex-lg-row gap-2 gap-lg-3">
+              <a href="#about-us" className="nav-custom-link w-100 w-lg-auto text-nowrap" onClick={() => setIsNavCollapsed(true)}>About Us</a>
+              <Link className="btn btn-outline-light btn-sm px-4 rounded-pill w-100 w-lg-auto mb-2 mb-lg-0 text-nowrap" to="/login">Login</Link>
+              <Link className="btn btn-light text-primary btn-sm px-4 fw-bold rounded-pill shadow-sm hover-lift w-100 w-lg-auto text-nowrap" to="/register">Register</Link>
+            </div>
           </div>
         </div>
       </nav>
 
-      <main className="flex-fill d-flex align-items-center" style={{ marginTop: '76px', background: 'linear-gradient(135deg, var(--er-blue-50) 0%, var(--er-gray-50) 100%)' }}>
+      <main className="d-flex align-items-center py-5" style={{ minHeight: '100vh', marginTop: '0', paddingTop: '76px', background: 'linear-gradient(135deg, var(--er-blue-50) 0%, var(--er-gray-50) 100%)' }}>
         <div className="container py-5">
           <div className="row align-items-center g-5">
             <div className="col-lg-6 text-center text-lg-start">
@@ -27,8 +40,11 @@ export function LandingPage() {
                 Coordinate Relief.<br />
                 <span className="text-primary">Save Lives.</span>
               </h1>
-              <p className="lead text-muted mb-5 pe-lg-5">
-                A unified platform connecting citizens, volunteers, and administrators for efficient, real-time emergency disaster response and resource dispatch.
+              <p className="lead text-dark fw-medium mb-2 pe-lg-5">
+                Welcome to the <strong>Emergency Resource and Disaster Relief Dispatch Coordinator</strong>.
+              </p>
+              <p className="text-muted mb-5 pe-lg-5 fs-5">
+                A unified platform connecting citizens, volunteers, and administrators for efficient, real-time emergency response and resource dispatch.
               </p>
               <div className="d-flex gap-3 justify-content-center justify-content-lg-start flex-wrap">
                 <Link to="/register" className="btn btn-primary btn-lg px-5 py-3 hover-lift shadow-sm d-flex align-items-center gap-2">
@@ -89,9 +105,61 @@ export function LandingPage() {
         </div>
       </main>
 
-      <footer className="bg-white py-4 mt-auto border-top">
-        <div className="container text-center text-muted small">
-          &copy; 2026 Disaster Relief Coordinator. All rights reserved.
+      {/* About Us Section */}
+      <section id="about-us" className="py-5 bg-white">
+        <div className="container py-lg-5 my-4">
+          <div className="row justify-content-center mb-5">
+            <div className="col-lg-8 text-center">
+              <span className="text-primary fw-bold text-uppercase tracking-wide small mb-2 d-block">Who We Are</span>
+              <h2 className="fw-bold display-5 mb-4 text-dark">About Us</h2>
+              <p className="lead text-muted">
+                We are a dedicated team of volunteers, administrators, and citizens working together to provide rapid, organized, and effective disaster relief where it's needed most.
+              </p>
+            </div>
+          </div>
+          
+          <div className="row g-4">
+            <div className="col-md-4 text-center">
+              <div className="p-4 p-xl-5 bg-light rounded-4 h-100 hover-lift transition-all border border-light">
+                <div className="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex p-3 mb-4 shadow-sm">
+                  <i className="bi bi-bullseye fs-2"></i>
+                </div>
+                <h4 className="fw-bold mb-3">Our Mission</h4>
+                <p className="text-muted mb-0">To ensure timely and equitable distribution of life-saving resources during crises, bridging the gap between donors, volunteers, and affected citizens.</p>
+              </div>
+            </div>
+            
+            <div className="col-md-4 text-center">
+              <div className="p-4 p-xl-5 bg-light rounded-4 h-100 hover-lift transition-all border border-light">
+                <div className="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex p-3 mb-4 shadow-sm">
+                  <i className="bi bi-people-fill fs-2"></i>
+                </div>
+                <h4 className="fw-bold mb-3">Community First</h4>
+                <p className="text-muted mb-0">A collaborative network driven by community action. Our platform empowers ordinary people to become extraordinary responders when disaster strikes.</p>
+              </div>
+            </div>
+            
+            <div className="col-md-4 text-center">
+              <div className="p-4 p-xl-5 bg-light rounded-4 h-100 hover-lift transition-all border border-light">
+                <div className="bg-warning bg-opacity-10 text-warning rounded-circle d-inline-flex p-3 mb-4 shadow-sm">
+                  <i className="bi bi-lightning-charge-fill fs-2"></i>
+                </div>
+                <h4 className="fw-bold mb-3">Our Impact</h4>
+                <p className="text-muted mb-0">Through real-time SOS tracking and intelligent inventory dispatch, we've drastically reduced emergency response times and optimized resource allocation.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer className="bg-dark text-white py-5 mt-auto">
+        <div className="container text-center text-white-50">
+          <div className="mb-3 d-flex justify-content-center gap-3 fs-5">
+            <a href="https://x.com/PradnyilPatil31" target="_blank" rel="noopener noreferrer" className="text-white-50 hover-text-white transition-all"><i className="bi bi-twitter-x"></i></a>
+            <a href="https://github.com/Pradnyil31/" target="_blank" rel="noopener noreferrer" className="text-white-50 hover-text-white transition-all"><i className="bi bi-github"></i></a>
+            <a href="mailto:patilpradnyil1@gmail.com" className="text-white-50 hover-text-white transition-all"><i className="bi bi-envelope"></i></a>
+          </div>
+          <p className="mb-0">&copy; 2026 Emergency Resource and Disaster Relief Dispatch Coordinator. All rights reserved.</p>
         </div>
       </footer>
     </div>

@@ -149,6 +149,93 @@
   color: var(--er-gray-300) !important;
 }
 
+/* Mobile Navbar Polish */
+.navbar-toggler {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  transition: all 0.2s ease;
+}
+.navbar-toggler:focus {
+  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Premium Nav Links */
+.nav-custom-link {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.nav-custom-link:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.nav-custom-badge {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border-radius: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  backdrop-filter: blur(5px);
+}
+
+.nav-logout-btn {
+  background-color: #ffffff;
+  color: var(--bs-primary) !important;
+  font-weight: 700;
+  padding: 0.5rem 1.5rem;
+  border-radius: 2rem;
+  border: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.nav-logout-btn:hover {
+  background-color: #f8f9fa;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    background-color: var(--bs-primary);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  }
+  .navbar-nav {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1rem !important;
+  }
+  .navbar-nav .nav-custom-link,
+  .navbar-nav .nav-custom-badge,
+  .navbar-nav .nav-logout-btn {
+    width: 100% !important;
+  }
+}
+
 /* Tables */
 .table {
   width: 100%;

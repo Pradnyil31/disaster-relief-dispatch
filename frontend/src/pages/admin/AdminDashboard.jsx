@@ -15,6 +15,7 @@ export function AdminDashboard() {
     pendingDonations: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [isNavCollapsed, setIsNavCollapsed] = useState(true);
 
   useEffect(() => {
     async function loadStats() {
@@ -49,24 +50,34 @@ export function AdminDashboard() {
 
   return (
     <div className="min-vh-100 bg-light animate-fade-in">
-      <nav className="navbar navbar-dark bg-primary sticky-top shadow-sm glass py-2">
-        <div className="container max-w-6xl d-flex align-items-center justify-content-between flex-nowrap">
+      <nav className="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm glass py-2">
+        <div className="container max-w-6xl">
           <Link className="navbar-brand d-flex align-items-center gap-2 fw-bold fs-6 fs-sm-5 mb-0" to="/admin">
             <i className="bi bi-shield-lock-fill text-warning"></i>
             <span>Admin Command Center</span>
           </Link>
-          <div className="d-flex align-items-center gap-2">
-            <div className="d-none d-sm-flex align-items-center gap-2 text-white bg-white bg-opacity-10 px-3 py-1 rounded-pill fs-7">
-              <i className="bi bi-person-badge"></i>
-              <span className="fw-medium text-truncate" style={{ maxWidth: '120px' }}>{user?.name || 'Admin'}</span>
+          <button 
+            className="navbar-toggler border-0 shadow-none" 
+            type="button" 
+            onClick={() => setIsNavCollapsed(!isNavCollapsed)}
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          
+          <div className={`${isNavCollapsed ? 'collapse' : ''} navbar-collapse justify-content-end mt-3 mt-lg-0`}>
+            <div className="navbar-nav align-items-center gap-2">
+              <div className="nav-custom-badge">
+                <i className="bi bi-person-circle fs-5"></i>
+                <span className="text-truncate" style={{ maxWidth: '120px' }}>{user?.name || 'Admin'}</span>
+              </div>
+              <button
+                type="button"
+                className="nav-logout-btn"
+                onClick={logout}
+              >
+                Logout <i className="bi bi-box-arrow-right"></i>
+              </button>
             </div>
-            <button
-              type="button"
-              className="btn btn-outline-light btn-sm px-3 rounded-pill hover-lift fs-7 fw-semibold"
-              onClick={logout}
-            >
-              Logout
-            </button>
           </div>
         </div>
       </nav>
@@ -152,7 +163,7 @@ export function AdminDashboard() {
                       <i className="bi bi-inbox fs-4"></i>
                     </div>
                     <div>
-                      <h6 className="fw-bold text-dark mb-1">SOS Requests (FR-2.4)</h6>
+                      <h6 className="fw-bold text-dark mb-1">SOS Requests</h6>
                       <p className="fs-7 text-muted mb-0">View, search, filter by urgency, & assign dispatch.</p>
                     </div>
                   </div>
@@ -166,7 +177,7 @@ export function AdminDashboard() {
                       <i className="bi bi-box-seam fs-4"></i>
                     </div>
                     <div>
-                      <h6 className="fw-bold text-dark mb-1">Inventory (FR-3.3/3.4)</h6>
+                      <h6 className="fw-bold text-dark mb-1">Inventory</h6>
                       <p className="fs-7 text-muted mb-0">Manage supplies, threshold alerts & category filters.</p>
                     </div>
                   </div>
@@ -180,7 +191,7 @@ export function AdminDashboard() {
                       <i className="bi bi-truck fs-4"></i>
                     </div>
                     <div>
-                      <h6 className="fw-bold text-dark mb-1">Manual Dispatch (FR-4.1)</h6>
+                      <h6 className="fw-bold text-dark mb-1">Manual Dispatch</h6>
                       <p className="fs-7 text-muted mb-0">Link SOS alerts directly to available volunteers.</p>
                     </div>
                   </div>
@@ -208,7 +219,7 @@ export function AdminDashboard() {
                       <i className="bi bi-gift fs-4"></i>
                     </div>
                     <div>
-                      <h6 className="fw-bold text-dark mb-1">Donation Pledges (FR-5.1)</h6>
+                      <h6 className="fw-bold text-dark mb-1">Donation Pledges</h6>
                       <p className="fs-7 text-muted mb-0">Approve goods pledges & auto-increment inventory stock.</p>
                     </div>
                   </div>
