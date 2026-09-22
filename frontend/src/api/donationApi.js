@@ -70,6 +70,11 @@ export const donationApi = {
     return normalizeDonation(res.data);
   },
 
+  rejectPledge: async (id) => {
+    const res = await axiosClient.patch(`/donations/${id}/reject`);
+    return normalizeDonation(res.data);
+  },
+
   verifyPayment: async (id) => {
     const res = await axiosClient.post(`/donations/${id}/verify-payment`);
     return normalizeDonation(res.data);

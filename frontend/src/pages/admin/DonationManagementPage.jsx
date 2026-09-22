@@ -59,6 +59,20 @@ export function DonationManagementPage() {
     }
   };
 
+  const handleRejectPledge = async (id) => {
+    if (!window.confirm('Are you sure you want to cancel/reject this donation?')) return;
+    try {
+      setProcessingId(id);
+      await donationApi.rejectPledge(id);
+      toast.success('Donation cancelled/rejected successfully.');
+      await fetchDonations();
+    } catch {
+      toast.error('Failed to reject pledge');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
   const getStatusBadgeClass = (status) => {
     switch (status) {
       case 'APPROVED':
@@ -140,6 +154,7 @@ export function DonationManagementPage() {
                 <option value="ALL">All Statuses</option>
                 <option value="PENDING">Pending Approval</option>
                 <option value="APPROVED">Approved / Stocked</option>
+                <option value="REJECTED">Rejected / Cancelled</option>
               </select>
             </div>
           </div>
@@ -212,31 +227,50 @@ export function DonationManagementPage() {
                         </td>
                         <td className="fs-7 text-muted">{formatDate(d.createdAt)}</td>
                         <td className="pe-4 text-end">
-                          {d.status === 'PENDING' && d.type === 'GOODS' && (
-                            <button
-                              type="button"
-                              className="btn btn-sm btn-success rounded-pill px-3 fw-bold"
-                              disabled={processingId === d.id}
-                              onClick={() => handleApprovePledge(d.id, d.itemName, d.quantity)}
-                            >
-                              {processingId === d.id ? 'Approving...' : 'Approve & Increment Inventory'}
-                            </button>
-                          )}
+                          <div className="d-flex justify-content-end gap-2">
+                            {d.status === 'PENDING' && d.type === 'GOODS' && (
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-success rounded-pill px-3 fw-bold"
+                                disabled={processingId === d.id}
+                                onClick={() => handleApprovePledge(d.id, d.itemName, d.quantity)}
+                              >
+                                {processingId === d.id ? 'Approving...' : 'Approve & Increment'}
+                              </button>
+                            )}
 
-                          {d.status === 'PENDING' && d.type === 'MONEY' && (
-                            <button
-                              type="button"
-                              className="btn btn-sm btn-primary rounded-pill px-3 fw-bold"
-                              disabled={processingId === d.id}
-                              onClick={() => handleVerifyPayment(d.id)}
-                            >
-                              {processingId === d.id ? 'Verifying...' : 'Verify Payment'}
-                            </button>
-                          )}
+                            {d.status === 'PENDING' && d.type === 'MONEY' && (
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-primary rounded-pill px-3 fw-bold"
+                                disabled={processingId === d.id}
+                                onClick={() => handleVerifyPayment(d.id)}
+                              >
+                                {processingId === d.id ? 'Verifying...' : 'Verify Payment'}
+                              </button>
+                            )}
+                            
+                            {d.status === 'PENDING' && (
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold"
+                                disabled={processingId === d.id}
+                                onClick={() => handleRejectPledge(d.id)}
+                              >
+                                Reject
+                              </button>
+                            )}
+                          </div>
 
-                          {d.status !== 'PENDING' && (
+                          {d.status === 'APPROVED' && (
                             <span className="fs-7 text-muted italic">
                               <i className="bi bi-check-all text-success me-1"></i>Completed
+                            </span>
+                          )}
+
+                          {d.status === 'REJECTED' && (
+                            <span className="fs-7 text-danger italic">
+                              <i className="bi bi-x-circle me-1"></i>Cancelled
                             </span>
                           )}
                         </td>

@@ -61,6 +61,12 @@ public class DonationController {
         return ResponseEntity.ok(response);
     }
 
+    @PatchMapping("/{id}/reject")
+    public ResponseEntity<DonationResponse> rejectDonation(@PathVariable Long id) {
+        DonationResponse response = donationService.rejectDonation(id);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/{id}/verify-payment")
     public ResponseEntity<DonationResponse> verifyPayment(@PathVariable Long id) {
         DonationResponse response = donationService.verifyPayment(id);

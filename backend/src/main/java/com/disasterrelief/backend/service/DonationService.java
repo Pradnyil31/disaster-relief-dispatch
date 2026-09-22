@@ -118,6 +118,25 @@ public class DonationService {
         return mapToResponse(updated);
     }
 
+    @Transactional
+    public DonationResponse rejectDonation(Long donationId) {
+        Donation donation = donationRepository.findById(donationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Donation not found with id: " + donationId));
+
+        if (donation.getStatus() == DonationStatus.APPROVED) {
+            throw new BusinessRuleException("Cannot reject a donation that is already APPROVED");
+        }
+        
+        if (donation.getStatus() == DonationStatus.REJECTED) {
+            throw new BusinessRuleException("Donation is already REJECTED/CANCELLED");
+        }
+
+        donation.setStatus(DonationStatus.REJECTED);
+        Donation updated = donationRepository.save(donation);
+
+        return mapToResponse(updated);
+    }
+
     @Transactional(readOnly = true)
     public List<DonationResponse> getAllDonations() {
         return donationRepository.findAll().stream()
