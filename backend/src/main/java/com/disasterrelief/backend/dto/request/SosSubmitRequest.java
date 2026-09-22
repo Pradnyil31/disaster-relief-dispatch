@@ -15,4 +15,5 @@ public class SosSubmitRequest {
     private String locationName;
     private java.util.List<com.disasterrelief.backend.model.ReliefItem> requiredSupplies;
     private String citizenPhone;
+    private String notes;
 }

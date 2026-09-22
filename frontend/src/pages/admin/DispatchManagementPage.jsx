@@ -335,7 +335,7 @@ export function DispatchManagementPage() {
                         </td>
                         <td className="fs-7 text-muted">{formatDate(d.assignedAt)}</td>
                         <td className="pe-4 text-end">
-                          <Link to={`/volunteer/tasks/${d.id}`} className="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                          <Link to={`/admin/dispatch/${d.id}`} className="btn btn-sm btn-outline-secondary rounded-pill px-3">
                             <i className="bi bi-eye me-1"></i> View Details
                           </Link>
                         </td>

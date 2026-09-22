@@ -75,18 +75,22 @@ export function TaskDetailPage() {
   }
 
   const googleMapsUrl = `https://www.google.com/maps?q=${task.latitude},${task.longitude}`;
+  const isAdmin = user?.role === 'ADMINISTRATOR';
 
   return (
-    <div className="min-vh-100 bg-light animate-fade-in">
+    <div className="min-vh-100 bg-light animate-fade-in pb-5">
       {/* Top Navbar */}
       <nav className="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm glass">
         <div className="container max-w-6xl">
-          <Link className="navbar-brand d-flex align-items-center gap-2 fw-bold" to="/volunteer">
-            <i className="bi bi-people-fill text-warning"></i>
-            <span>Volunteer Portal</span>
+          <Link className="navbar-brand d-flex align-items-center gap-2 fw-bold" to={isAdmin ? '/admin' : '/volunteer'}>
+            {isAdmin ? (
+              <><i className="bi bi-shield-lock-fill text-warning"></i><span>Admin Command Center</span></>
+            ) : (
+              <><i className="bi bi-people-fill text-warning"></i><span>Volunteer Portal</span></>
+            )}
           </Link>
           <div className="navbar-nav ms-auto align-items-center gap-2">
-            <Link to="/volunteer/tasks" className="btn btn-outline-light btn-sm rounded-pill px-3 me-2">
+            <Link to={isAdmin ? '/admin/dispatch' : '/volunteer/tasks'} className="btn btn-outline-light btn-sm rounded-pill px-3 me-2">
               <i className="bi bi-arrow-left me-1"></i> Back to Tasks
             </Link>
             <div className="d-flex align-items-center gap-2 text-white bg-white bg-opacity-10 px-3 py-1 rounded-pill">
@@ -152,63 +156,87 @@ export function TaskDetailPage() {
             </div>
           </div>
 
-          {/* Action Button Controls */}
-          <div className="bg-light p-3 rounded-3 border">
-            <label className="form-label fw-semibold text-dark fs-7 mb-2">Optional Update Note / Remark:</label>
-            <input
-              type="text"
-              className="form-control form-control-sm mb-3"
-              placeholder="e.g. Left warehouse with 20L water, ETA 15 mins..."
-              value={statusNote}
-              onChange={(e) => setStatusNote(e.target.value)}
-            />
+          {/* Action Button Controls (Only for Volunteers) */}
+          {!isAdmin && (
+            <div className="bg-light p-3 rounded-3 border">
+              <div className="d-flex justify-content-between align-items-end mb-3">
+                <div className="flex-grow-1 me-3">
+                  <label className="form-label fw-semibold text-dark fs-7 mb-2">Optional Update Note / Remark:</label>
+                  <input
+                    type="text"
+                    className="form-control form-control-sm"
+                    placeholder="e.g. Left warehouse with 20L water, ETA 15 mins..."
+                    value={statusNote}
+                    onChange={(e) => setStatusNote(e.target.value)}
+                  />
+                </div>
+              </div>
 
-            <div className="d-flex flex-wrap gap-2 justify-content-end">
-              {task.status === 'ASSIGNED' && (
-                <button
-                  type="button"
-                  className="btn btn-warning rounded-pill px-4 text-dark fw-bold hover-lift"
-                  disabled={updatingStatus}
-                  onClick={() => handleStatusChange('EN_ROUTE')}
-                >
-                  {updatingStatus ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm me-2"></span> Updating...
-                    </>
-                  ) : (
-                    <>
-                      <i className="bi bi-geo-alt me-2"></i> Start En Route to Location
-                    </>
-                  )}
-                </button>
-              )}
-
-              {task.status === 'EN_ROUTE' && (
-                <button
-                  type="button"
-                  className="btn btn-success rounded-pill px-4 fw-bold hover-lift"
-                  disabled={updatingStatus}
-                  onClick={() => handleStatusChange('DELIVERED')}
-                >
-                  {updatingStatus ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm me-2"></span> Updating...
-                    </>
-                  ) : (
-                    <>
-                      <i className="bi bi-check-circle me-2"></i> Confirm Delivery Completed
-                    </>
-                  )}
-                </button>
-              )}
-
-              {task.status === 'DELIVERED' && (
-                <div className="alert alert-success mb-0 py-2 px-3 fs-7 w-100 text-center fw-medium">
-                  <i className="bi bi-check-circle-fill me-1"></i> Mission Completed! Relief supplies handed over successfully.
+              {task.notes && (
+                <div className="mb-4 p-3 bg-white border rounded-3 shadow-sm">
+                  <span className="text-muted fs-7 text-uppercase fw-semibold d-block mb-1">
+                    <i className="bi bi-chat-right-text me-2"></i>Current Dispatch Note
+                  </span>
+                  <p className="mb-0 text-dark fw-medium fs-6">"{task.notes}"</p>
                 </div>
               )}
+
+              <div className="d-flex flex-wrap gap-2 justify-content-end">
+                {task.status === 'ASSIGNED' && (
+                  <button
+                    type="button"
+                    className="btn btn-warning rounded-pill px-4 text-dark fw-bold hover-lift"
+                    disabled={updatingStatus}
+                    onClick={() => handleStatusChange('EN_ROUTE')}
+                  >
+                    {updatingStatus ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2"></span> Updating...
+                      </>
+                    ) : (
+                      <>
+                        <i className="bi bi-geo-alt me-2"></i> Start En Route to Location
+                      </>
+                    )}
+                  </button>
+                )}
+
+                {task.status === 'EN_ROUTE' && (
+                  <button
+                    type="button"
+                    className="btn btn-success rounded-pill px-4 fw-bold hover-lift"
+                    disabled={updatingStatus}
+                    onClick={() => handleStatusChange('DELIVERED')}
+                  >
+                    {updatingStatus ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2"></span> Updating...
+                      </>
+                    ) : (
+                      <>
+                        <i className="bi bi-check-circle me-2"></i> Confirm Delivery Completed
+                      </>
+                    )}
+                  </button>
+                )}
+
+                {task.status === 'DELIVERED' && (
+                  <div className="alert alert-success mb-0 py-2 px-3 fs-7 w-100 text-center fw-medium">
+                    <i className="bi bi-check-circle-fill me-1"></i> Mission Completed! Relief supplies handed over successfully.
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
+
+          {isAdmin && task.notes && (
+            <div className="bg-light p-3 rounded-3 border mt-3">
+              <span className="text-muted fs-7 text-uppercase fw-semibold d-block mb-1">
+                <i className="bi bi-chat-right-text me-2"></i>Current Dispatch Note
+              </span>
+              <p className="mb-0 text-dark fw-medium fs-6">"{task.notes}"</p>
+            </div>
+          )}
         </div>
 
         <div className="row g-4 mb-4">
@@ -247,11 +275,11 @@ export function TaskDetailPage() {
                 </a>
               </div>
 
-              {task.notes && (
+              {task.citizenNotes && (
                 <div>
                   <span className="text-muted fs-7 text-uppercase fw-semibold d-block">Citizen Notes / Remarks</span>
                   <div className="p-3 bg-light rounded-3 text-dark border fs-7 italic mt-1">
-                    "{task.notes}"
+                    "{task.citizenNotes}"
                   </div>
                 </div>
               )}
@@ -286,13 +314,12 @@ export function TaskDetailPage() {
                   {task.history?.map((h, idx) => (
                     <div key={idx} className="mb-3 position-relative">
                       <div className="d-flex align-items-center gap-2">
-                        <span className={`badge ${getDispatchStatusBadgeClass(h.status)} px-2 py-1 fs-7`}>
-                          {h.status.replace('_', ' ')}
+                        <span className={`badge ${getDispatchStatusBadgeClass(h.newStatus)} px-2 py-1 fs-7`}>
+                          {h.newStatus?.replace('_', ' ')}
                         </span>
-                        <span className="fs-7 text-muted">{formatDate(h.timestamp)}</span>
+                        <span className="fs-7 text-muted">{formatDate(h.changedAt)}</span>
                       </div>
-                      <div className="fs-7 fw-semibold text-dark mt-1">{h.updatedBy}</div>
-                      {h.note && <div className="fs-7 text-muted">{h.note}</div>}
+                      <div className="fs-7 fw-semibold text-dark mt-1">{h.changedBy?.name || 'System'}</div>
                     </div>
                   ))}
                 </div>

@@ -26,6 +26,7 @@ public class SosResponse {
     private java.util.List<com.disasterrelief.backend.model.ReliefItem> requiredSupplies;
     private RequestSource source;
     private String citizenPhone;
+    private String notes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

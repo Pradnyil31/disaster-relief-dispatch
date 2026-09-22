@@ -40,6 +40,7 @@ public class SosService {
                 .requiredSupplies(request.getRequiredSupplies() != null ? request.getRequiredSupplies() : new java.util.ArrayList<>())
                 .source(RequestSource.WEB)
                 .citizenPhone(phone)
+                .notes(request.getNotes() != null ? request.getNotes().trim() : null)
                 .build();
 
         SosRequest saved = sosRequestRepository.save(sosRequest);
@@ -130,6 +131,7 @@ public class SosService {
                 .requiredSupplies(sosRequest.getRequiredSupplies())
                 .source(sosRequest.getSource())
                 .citizenPhone(phone)
+                .notes(sosRequest.getNotes())
                 .createdAt(sosRequest.getCreatedAt())
                 .updatedAt(sosRequest.getUpdatedAt())
                 .build();

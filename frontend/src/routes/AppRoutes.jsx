@@ -65,6 +65,7 @@ export function AppRoutes() {
               <Route path="inventory" element={<InventoryManagementPage />} />
               <Route path="volunteers" element={<VolunteerManagementPage />} />
               <Route path="dispatch" element={<DispatchManagementPage />} />
+              <Route path="dispatch/:id" element={<TaskDetailPage />} />
               <Route path="donations" element={<DonationManagementPage />} />
             </Routes>
           </ProtectedRoute>

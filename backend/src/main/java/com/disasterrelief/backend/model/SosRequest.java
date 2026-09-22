@@ -50,6 +50,9 @@ public class SosRequest {
     @Column(name = "citizen_phone")
     private String citizenPhone;
 
+    @Column(name = "notes", length = 1000)
+    private String notes;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
