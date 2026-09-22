@@ -40,6 +40,7 @@ public class SosRequest {
     @CollectionTable(name = "sos_required_supplies", joinColumns = @JoinColumn(name = "sos_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "supply")
+    @OrderColumn(name = "supply_order")
     private List<ReliefItem> requiredSupplies;
 
     @Enumerated(EnumType.STRING)
