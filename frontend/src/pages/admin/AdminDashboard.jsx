@@ -13,6 +13,7 @@ export function AdminDashboard() {
     activeDispatches: 0,
     lowStockCount: 0,
     pendingDonations: 0,
+    totalFunds: 0,
   });
   const [loading, setLoading] = useState(true);
   const [isNavCollapsed, setIsNavCollapsed] = useState(true);
@@ -21,11 +22,12 @@ export function AdminDashboard() {
     async function loadStats() {
       try {
         setLoading(true);
-        const [sosRes, dispatchRes, invLow, donRes] = await Promise.all([
+        const [sosRes, dispatchRes, invLow, donRes, moneyRes] = await Promise.all([
           sosApi.list({ status: 'PENDING' }),
           dispatchApi.list({ status: 'ALL' }),
           inventoryApi.lowStock(),
           donationApi.list({ status: 'PENDING' }),
+          donationApi.list({ type: 'MONEY', status: 'APPROVED' }),
         ]);
 
         const pendingSos = sosRes?.content ? sosRes.content.filter(s => s.status === 'PENDING').length : (Array.isArray(sosRes) ? sosRes.filter(s => s.status === 'PENDING').length : 0);
@@ -33,11 +35,16 @@ export function AdminDashboard() {
         const lowStockCount = Array.isArray(invLow) ? invLow.length : (invLow?.content ? invLow.content.length : 0);
         const pendingDonations = donRes?.content ? donRes.content.filter(d => d.status === 'PENDING').length : (Array.isArray(donRes) ? donRes.filter(d => d.status === 'PENDING').length : 0);
 
+        // Calculate Total Funds Collected
+        const approvedMoneyDonations = moneyRes?.content || (Array.isArray(moneyRes) ? moneyRes : []);
+        const totalFunds = approvedMoneyDonations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+
         setStats({
           pendingSos,
           activeDispatches,
           lowStockCount,
           pendingDonations,
+          totalFunds,
         });
       } catch {
         // quiet fallback
@@ -92,7 +99,7 @@ export function AdminDashboard() {
 
         {/* Live Metrics Grid */}
         <div className="row g-3 mb-4">
-          <div className="col-12 col-sm-6 col-lg-3">
+          <div className="col-12 col-sm-6 col-lg-4 col-xl">
             <div className="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-primary border-4 h-100">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
@@ -106,7 +113,7 @@ export function AdminDashboard() {
             </div>
           </div>
 
-          <div className="col-12 col-sm-6 col-lg-3">
+          <div className="col-12 col-sm-6 col-lg-4 col-xl">
             <div className="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-warning border-4 h-100">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
@@ -120,11 +127,11 @@ export function AdminDashboard() {
             </div>
           </div>
 
-          <div className="col-12 col-sm-6 col-lg-3">
+          <div className="col-12 col-sm-6 col-lg-4 col-xl">
             <div className="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-danger border-4 h-100">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <span className="text-muted text-uppercase fw-semibold fs-7">Low Stock Items</span>
+                  <span className="text-muted text-uppercase fw-semibold fs-7">Low Stock</span>
                   <h2 className="fw-bold mb-0 text-danger">{loading ? '...' : stats.lowStockCount}</h2>
                 </div>
                 <div className="bg-danger bg-opacity-10 p-3 rounded-circle text-danger">
@@ -134,7 +141,7 @@ export function AdminDashboard() {
             </div>
           </div>
 
-          <div className="col-12 col-sm-6 col-lg-3">
+          <div className="col-12 col-sm-6 col-lg-4 col-xl">
             <div className="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-success border-4 h-100">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
@@ -143,6 +150,22 @@ export function AdminDashboard() {
                 </div>
                 <div className="bg-success bg-opacity-10 p-3 rounded-circle text-success">
                   <i className="bi bi-heart fs-3"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-12 col-sm-12 col-lg-8 col-xl">
+            <div className="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-info border-4 h-100 hover-lift transition-all" style={{ background: 'linear-gradient(to right, #ffffff, #f0fdf4)' }}>
+              <div className="d-flex justify-content-between align-items-center">
+                <div>
+                  <span className="text-muted text-uppercase fw-semibold fs-7">Relief Fund Collected</span>
+                  <h2 className="fw-bolder mb-0 text-success" style={{ letterSpacing: '-0.5px' }}>
+                    {loading ? '...' : `₹${stats.totalFunds.toLocaleString()}`}
+                  </h2>
+                </div>
+                <div className="bg-success bg-opacity-10 p-3 rounded-circle text-success shadow-sm">
+                  <i className="bi bi-currency-rupee fs-3"></i>
                 </div>
               </div>
             </div>
