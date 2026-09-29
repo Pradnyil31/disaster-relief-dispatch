@@ -143,7 +143,7 @@ export function InventoryManagementPage() {
         {/* Header */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
           <div>
-            <h2 className="fw-bolder text-dark mb-1">Relief Inventory Management (FR-3.3/3.4)</h2>
+            <h2 className="fw-bolder text-dark mb-1">Relief Inventory Management</h2>
             <p className="text-muted mb-0">Track warehouse supplies, configure low-stock threshold triggers, and update stock counts.</p>
           </div>
           <button
