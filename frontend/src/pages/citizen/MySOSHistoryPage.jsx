@@ -8,7 +8,7 @@ import { formatDate } from '../../utils/helpers';
 
 const PAGE_SIZE = 10;
 
-const STATUS_OPTIONS = ['All', 'PENDING', 'ASSIGNED', 'EN_ROUTE', 'DELIVERED', 'CANCELLED'];
+const STATUS_OPTIONS = ['All', 'PENDING', 'ASSIGNED', 'EN_ROUTE', 'DELIVERED'];
 
 const URGENCY_BADGE = {
   HIGH:   'badge-urgency-high',
