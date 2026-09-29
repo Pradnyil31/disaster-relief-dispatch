@@ -42,7 +42,6 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/sos/webhook/sms").permitAll()
                         .requestMatchers("/api/v1/donations/pledge").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/sos").hasRole("ADMINISTRATOR")
                         .requestMatchers(HttpMethod.POST, "/api/v1/sos").hasAnyRole("CITIZEN", "ADMINISTRATOR")
