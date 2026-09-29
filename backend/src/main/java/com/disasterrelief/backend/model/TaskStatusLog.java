@@ -20,6 +20,7 @@ public class TaskStatusLog {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private DispatchTask dispatchTask;
 
     @Enumerated(EnumType.STRING)
@@ -32,6 +33,7 @@ public class TaskStatusLog {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "changed_by", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private User changedBy;
 
     @Column(name = "changed_at", nullable = false, updatable = false)
