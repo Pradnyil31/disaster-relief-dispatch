@@ -3,6 +3,7 @@ package com.disasterrelief.backend.service;
 import com.disasterrelief.backend.dto.request.DispatchRequest;
 import com.disasterrelief.backend.dto.request.DispatchStatusUpdateRequest;
 import com.disasterrelief.backend.dto.response.DispatchResponse;
+import com.disasterrelief.backend.dto.response.DispatchAllocationResponse;
 import com.disasterrelief.backend.exception.BusinessRuleException;
 import com.disasterrelief.backend.exception.ResourceNotFoundException;
 import com.disasterrelief.backend.model.*;
@@ -10,6 +11,8 @@ import com.disasterrelief.backend.repository.DispatchTaskRepository;
 import com.disasterrelief.backend.repository.SosRequestRepository;
 import com.disasterrelief.backend.repository.TaskStatusLogRepository;
 import com.disasterrelief.backend.repository.UserRepository;
+import com.disasterrelief.backend.repository.InventoryRepository;
+import com.disasterrelief.backend.dto.request.DispatchInventoryRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
@@ -27,17 +30,20 @@ public class DispatchService {
     private final UserRepository userRepository;
     private final TaskStatusLogRepository taskStatusLogRepository;
     private final InventoryService inventoryService;
+    private final InventoryRepository inventoryRepository;
 
     public DispatchService(DispatchTaskRepository dispatchTaskRepository,
                            SosRequestRepository sosRequestRepository,
                            UserRepository userRepository,
                            TaskStatusLogRepository taskStatusLogRepository,
-                           InventoryService inventoryService) {
+                           InventoryService inventoryService,
+                           InventoryRepository inventoryRepository) {
         this.dispatchTaskRepository = dispatchTaskRepository;
         this.sosRequestRepository = sosRequestRepository;
         this.userRepository = userRepository;
         this.taskStatusLogRepository = taskStatusLogRepository;
         this.inventoryService = inventoryService;
+        this.inventoryRepository = inventoryRepository;
     }
 
     @Transactional
@@ -60,11 +66,6 @@ public class DispatchService {
             throw new BusinessRuleException("User with id " + request.getVolunteerId() + " does not have the VOLUNTEER role");
         }
 
-        // Deduct inventory if specified
-        if (request.getInventoryItemId() != null && request.getQuantityDeducted() != null && request.getQuantityDeducted() > 0) {
-            inventoryService.deductStock(request.getInventoryItemId(), request.getQuantityDeducted());
-        }
-
         String cleanNotes = request.getNotes() != null ? request.getNotes().trim() : null;
 
         DispatchTask task = DispatchTask.builder()
@@ -73,6 +74,29 @@ public class DispatchService {
                 .status(TaskStatus.ASSIGNED)
                 .notes(cleanNotes)
                 .build();
+
+        // Process inventory allocations
+        if (request.getInventoryAllocations() != null) {
+            java.util.List<DispatchAllocation> allocations = new java.util.ArrayList<>();
+            for (DispatchInventoryRequest allocReq : request.getInventoryAllocations()) {
+                if (allocReq.getInventoryItemId() != null && allocReq.getQuantityDeducted() != null && allocReq.getQuantityDeducted() > 0) {
+                    // Deduct stock
+                    inventoryService.deductStock(allocReq.getInventoryItemId(), allocReq.getQuantityDeducted());
+                    
+                    // Link to task
+                    InventoryItem item = inventoryRepository.findById(allocReq.getInventoryItemId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Inventory item not found"));
+                    
+                    DispatchAllocation allocation = DispatchAllocation.builder()
+                            .dispatchTask(task)
+                            .inventoryItem(item)
+                            .quantity(allocReq.getQuantityDeducted())
+                            .build();
+                    allocations.add(allocation);
+                }
+            }
+            task.setAllocations(allocations);
+        }
 
         // Update volunteer status to BUSY
         volunteer.setVolunteerStatus(VolunteerStatus.BUSY);
@@ -192,6 +216,18 @@ public class DispatchService {
 
         List<TaskStatusLog> history = taskStatusLogRepository.findByDispatchTaskOrderByChangedAtDesc(task);
 
+        List<DispatchAllocationResponse> allocationResponses = new java.util.ArrayList<>();
+        if (task.getAllocations() != null) {
+            for (DispatchAllocation allocation : task.getAllocations()) {
+                allocationResponses.add(DispatchAllocationResponse.builder()
+                        .id(allocation.getId())
+                        .inventoryItemId(allocation.getInventoryItem().getId())
+                        .inventoryItemName(allocation.getInventoryItem().getName())
+                        .quantity(allocation.getQuantity())
+                        .build());
+            }
+        }
+
         return DispatchResponse.builder()
                 .id(task.getId())
                 .sosId(sos != null ? sos.getId() : null)
@@ -212,6 +248,7 @@ public class DispatchService {
                 .enRouteAt(task.getEnRouteAt())
                 .deliveredAt(task.getDeliveredAt())
                 .history(history)
+                .allocations(allocationResponses)
                 .build();
     }
 }

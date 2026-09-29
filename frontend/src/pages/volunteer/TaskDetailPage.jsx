@@ -305,6 +305,23 @@ export function TaskDetailPage() {
                 </div>
               </div>
 
+              {task.allocations && task.allocations.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-muted fs-7 text-uppercase fw-semibold d-block mb-2">Allocated Relief Stock</span>
+                  <div className="d-flex flex-column gap-2">
+                    {task.allocations.map((allocation, idx) => (
+                      <div key={idx} className="p-2 border rounded-3 bg-light d-flex justify-content-between align-items-center">
+                        <div className="d-flex align-items-center gap-2">
+                          <i className="bi bi-box-seam text-primary fs-5"></i>
+                          <span className="fw-medium text-dark">{allocation.inventoryItemName}</span>
+                        </div>
+                        <span className="badge bg-primary rounded-pill px-3 py-2">Qty: {allocation.quantity}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Status Audit Log */}
               <div>
                 <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-1">

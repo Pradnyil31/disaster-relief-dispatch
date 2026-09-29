@@ -57,8 +57,7 @@ export const dispatchApi = {
     const payload = {
       sosRequestId: Number(data.sosId || data.sosRequestId),
       volunteerId: Number(data.volunteerId),
-      inventoryItemId: data.inventoryItemId ? Number(data.inventoryItemId) : null,
-      quantityDeducted: data.quantityDeducted ? Number(data.quantityDeducted) : null,
+      inventoryAllocations: data.inventoryAllocations || [],
       notes: data.notes || '',
     };
     const res = await axiosClient.post('/dispatch', payload);

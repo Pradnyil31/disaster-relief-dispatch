@@ -12,7 +12,6 @@ public class DispatchRequest {
     @NotNull(message = "Volunteer ID is required")
     private Long volunteerId;
 
-    private Long inventoryItemId;
-    private Integer quantityDeducted;
+    private java.util.List<DispatchInventoryRequest> inventoryAllocations;
     private String notes;
 }

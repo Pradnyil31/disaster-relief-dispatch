@@ -21,8 +21,7 @@ export function DispatchManagementPage() {
   // Form State
   const [selectedSosId, setSelectedSosId] = useState(location.state?.selectedSosId || '');
   const [selectedVolunteerId, setSelectedVolunteerId] = useState('');
-  const [selectedInventoryId, setSelectedInventoryId] = useState('');
-  const [quantityDeducted, setQuantityDeducted] = useState(1);
+  const [allocations, setAllocations] = useState([{ inventoryItemId: '', quantityDeducted: 1 }]);
   const [dispatchNotes, setDispatchNotes] = useState('');
   const [assigning, setAssigning] = useState(false);
   const [isNavCollapsed, setIsNavCollapsed] = useState(true);
@@ -74,11 +73,13 @@ export function DispatchManagementPage() {
 
     try {
       setAssigning(true);
+      
+      const validAllocations = allocations.filter(a => a.inventoryItemId && a.quantityDeducted > 0);
+      
       await dispatchApi.assign({
         sosId: selectedSosId,
         volunteerId: selectedVolunteerId,
-        inventoryItemId: selectedInventoryId || null,
-        quantityDeducted: selectedInventoryId ? Number(quantityDeducted) : null,
+        inventoryAllocations: validAllocations,
         citizenName: sosObj?.citizenName || 'Citizen',
         citizenPhone: sosObj?.citizenPhone || '',
         latitude: sosObj?.latitude,
@@ -96,8 +97,7 @@ export function DispatchManagementPage() {
       toast.success(`Volunteer ${volObj?.name || ''} assigned to SOS #${selectedSosId}! Inventory stock deducted.`);
       setSelectedSosId('');
       setSelectedVolunteerId('');
-      setSelectedInventoryId('');
-      setQuantityDeducted(1);
+      setAllocations([{ inventoryItemId: '', quantityDeducted: 1 }]);
       setDispatchNotes('');
       await fetchData();
     } catch (err) {
@@ -203,36 +203,74 @@ export function DispatchManagementPage() {
             </div>
 
             {/* Inventory Stock Allocation */}
-            <div className="row g-3 mb-3 bg-light p-3 rounded-3 border">
-              <div className="col-12 col-md-8">
-                <label className="form-label fw-semibold text-dark fs-7">
-                  <i className="bi bi-box-seam text-primary me-1"></i> Allocate Relief Stock Item (Optional)
-                </label>
-                <select
-                  className="form-select"
-                  value={selectedInventoryId}
-                  onChange={(e) => setSelectedInventoryId(e.target.value)}
-                >
-                  <option value="">-- No Stock Deduction --</option>
-                  {inventoryList.map((item) => (
-                    <option key={item.id} value={item.id} disabled={item.quantity <= 0}>
-                      {item.name} — Available: {item.quantity} units
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="mb-3 bg-light p-3 rounded-3 border">
+              <label className="form-label fw-semibold text-dark fs-7 d-block mb-3">
+                <i className="bi bi-box-seam text-primary me-1"></i> Allocate Relief Stock (Optional)
+              </label>
+              
+              {allocations.map((allocation, index) => (
+                <div className="row g-3 mb-2 align-items-end" key={index}>
+                  <div className="col-12 col-md-7">
+                    <label className="form-label text-muted fs-8 mb-1">Select Item</label>
+                    <select
+                      className="form-select"
+                      value={allocation.inventoryItemId}
+                      onChange={(e) => {
+                        const newAllocations = [...allocations];
+                        newAllocations[index].inventoryItemId = e.target.value;
+                        setAllocations(newAllocations);
+                      }}
+                    >
+                      <option value="">-- No Stock Deduction --</option>
+                      {inventoryList.map((item) => (
+                        <option key={item.id} value={item.id} disabled={item.quantity <= 0}>
+                          {item.name} — Available: {item.quantity} units
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-              <div className="col-12 col-md-4">
-                <label className="form-label fw-semibold text-dark fs-7">Quantity to Deduct</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  min="1"
-                  value={quantityDeducted}
-                  onChange={(e) => setQuantityDeducted(e.target.value)}
-                  disabled={!selectedInventoryId}
-                />
-              </div>
+                  <div className="col-8 col-md-3">
+                    <label className="form-label text-muted fs-8 mb-1">Quantity</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      min="1"
+                      value={allocation.quantityDeducted}
+                      onChange={(e) => {
+                        const newAllocations = [...allocations];
+                        newAllocations[index].quantityDeducted = Number(e.target.value);
+                        setAllocations(newAllocations);
+                      }}
+                      disabled={!allocation.inventoryItemId}
+                    />
+                  </div>
+                  
+                  <div className="col-4 col-md-2">
+                    {allocations.length > 1 && (
+                      <button
+                        type="button"
+                        className="btn btn-outline-danger w-100"
+                        onClick={() => {
+                          const newAllocations = [...allocations];
+                          newAllocations.splice(index, 1);
+                          setAllocations(newAllocations);
+                        }}
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-primary mt-2"
+                onClick={() => setAllocations([...allocations, { inventoryItemId: '', quantityDeducted: 1 }])}
+              >
+                <i className="bi bi-plus-circle me-1"></i> Add Another Item
+              </button>
             </div>
 
             {/* Optional Dispatch Notes */}

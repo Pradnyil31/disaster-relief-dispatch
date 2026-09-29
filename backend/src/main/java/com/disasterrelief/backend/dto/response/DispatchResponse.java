@@ -33,4 +33,5 @@ public class DispatchResponse {
     private LocalDateTime enRouteAt;
     private LocalDateTime deliveredAt;
     private java.util.List<com.disasterrelief.backend.model.TaskStatusLog> history;
+    private java.util.List<DispatchAllocationResponse> allocations;
 }

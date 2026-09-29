@@ -42,6 +42,9 @@ public class DispatchTask {
     @Column(name = "delivered_at")
     private LocalDateTime deliveredAt;
 
+    @OneToMany(mappedBy = "dispatchTask", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<DispatchAllocation> allocations = new java.util.ArrayList<>();
+
     @PrePersist
     protected void onCreate() {
         this.assignedAt = LocalDateTime.now();
