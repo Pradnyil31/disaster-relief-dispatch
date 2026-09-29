@@ -15,7 +15,8 @@ export function DonorDashboard() {
       try {
         setLoading(true);
         const res = await donationApi.my({ status: 'ALL' });
-        setDonations(res.content || res || []);
+        const data = res.content || res || [];
+        setDonations([...data].reverse());
       } catch {
         toast.error('Failed to load donation history');
       } finally {
@@ -28,7 +29,7 @@ export function DonorDashboard() {
   const totalPledges = donations.length;
   const approvedGoods = donations.filter(d => d.type === 'GOODS' && d.status === 'APPROVED');
   const totalMoneyVerified = donations
-    .filter(d => d.type === 'MONEY' && d.status === 'VERIFIED')
+    .filter(d => d.type === 'MONEY' && d.status === 'APPROVED')
     .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
   const pendingCount = donations.filter(d => d.status === 'PENDING').length;
 

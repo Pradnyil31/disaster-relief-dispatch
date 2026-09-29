@@ -21,7 +21,8 @@ export function DonationManagementPage() {
         type: typeFilter,
         status: statusFilter,
       });
-      setDonations(res.content || res || []);
+      const data = res.content || res || [];
+      setDonations([...data].reverse());
     } catch {
       toast.error('Failed to load donation pledges');
     } finally {
