@@ -49,8 +49,6 @@ Built with a robust **Java Spring Boot backend** and a dynamic **React frontend*
 
 ## 📸 Previews
 
-> *Note: Placeholders for UI screenshots. Upload your screenshots to a `docs/screenshots` folder and update the links below.*
-
 <details>
 <summary>Click to view screenshots</summary>
 
@@ -75,7 +73,7 @@ The fastest way to run the entire system (Frontend, Backend, and Database) is us
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/disaster-relief-dispatch.git
+   git clone https://github.com/Pradnyil31/disaster-relief-dispatch.git
    cd disaster-relief-dispatch
    ```
 
