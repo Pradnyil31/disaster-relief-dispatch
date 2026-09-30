@@ -54,10 +54,12 @@ Built with a robust **Java Spring Boot backend** and a dynamic **React frontend*
 <details>
 <summary>Click to view screenshots</summary>
 
+- **Landing Page:** `![Landing Page](./docs/screenshots/landing.png)`
 - **Admin Command Center:** `![Admin Dashboard](./docs/screenshots/admin.png)`
 - **Citizen SOS Form:** `![Citizen SOS](./docs/screenshots/citizen.png)`
 - **Warehouse Inventory:** `![Inventory](./docs/screenshots/inventory.png)`
 - **Volunteer Task App:** `![Volunteer App](./docs/screenshots/volunteer.png)`
+- **Donor Portal:** `![Donor Portal](./docs/screenshots/donor.png)`
 
 </details>
 
@@ -110,13 +112,6 @@ You can simulate a citizen sending a text message for help by sending a POST req
 - **Body (`x-www-form-urlencoded`):**
   - `From`: `+919876543210`
   - `Body`: `Help, flooded house at Linking Road.`
-
----
-
-## 🗺️ Roadmap / Future Enhancements
-- [ ] Comprehensive User Management Portal for Administrators.
-- [ ] Automated Test Suites (JUnit & React Testing Library).
-- [ ] Email/OTP functionality for "Forgot Password" flows.
 
 ---
 
