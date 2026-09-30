@@ -41,7 +41,7 @@ Built with a robust **Java Spring Boot backend** and a dynamic **React frontend*
 | Component | Technology | Description |
 | :--- | :--- | :--- |
 | **Frontend** | React.js, Vite, Bootstrap 5 | Dynamic SPA with Context API for state management. |
-| **Backend** | Java 17, Spring Boot 3 | REST API architecture with Spring Security (JWT). |
+| **Backend** | Java 21, Spring Boot 3 | REST API architecture with Spring Security (JWT). |
 | **Database** | MySQL 8.0, Spring Data JPA | Relational database with strict entity mapping. |
 | **Infrastructure** | Docker, Docker Compose | Containerized environments for seamless deployment. |
 
