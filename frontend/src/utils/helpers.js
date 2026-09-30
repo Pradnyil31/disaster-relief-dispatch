@@ -1,6 +1,14 @@
 export function formatDate(dateString) {
   if (!dateString) return '—';
-  const date = new Date(dateString);
+  
+  let date;
+  if (Array.isArray(dateString)) {
+    const [year, month, day, hour = 0, minute = 0, second = 0] = dateString;
+    date = new Date(year, month - 1, day, hour, minute, second);
+  } else {
+    date = new Date(dateString);
+  }
+
   return date.toLocaleString(undefined, {
     year: 'numeric',
     month: 'short',
@@ -12,7 +20,15 @@ export function formatDate(dateString) {
 
 export function formatDateOnly(dateString) {
   if (!dateString) return '—';
-  const date = new Date(dateString);
+  
+  let date;
+  if (Array.isArray(dateString)) {
+    const [year, month, day, hour = 0, minute = 0, second = 0] = dateString;
+    date = new Date(year, month - 1, day, hour, minute, second);
+  } else {
+    date = new Date(dateString);
+  }
+
   return date.toLocaleDateString(undefined, {
     year: 'numeric',
     month: 'short',
