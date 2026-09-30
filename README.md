@@ -54,7 +54,7 @@ Built with a robust **Java Spring Boot backend** and a dynamic **React frontend*
 <details>
 <summary>Click to view screenshots</summary>
 
-- **Landing Page:** `![Landing Page](./docs/screenshots/landing.png)`
+- **Landing Page:** `![Landing Page](./docs/screenshots/landing_page.png)`
 - **Admin Command Center:** `![Admin Dashboard](./docs/screenshots/admin.png)`
 - **Citizen SOS Form:** `![Citizen SOS](./docs/screenshots/citizen.png)`
 - **Warehouse Inventory:** `![Inventory](./docs/screenshots/inventory.png)`
