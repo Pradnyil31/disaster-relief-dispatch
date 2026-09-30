@@ -24,7 +24,7 @@ Built with a robust **Java Spring Boot backend** and a dynamic **React frontend*
 ## ✨ Key Features
 
 - **🚨 Citizen SOS & Offline SMS:** 
-  Citizens can submit geolocation-based SOS requests via the web portal. For offline users, the system supports a simulated SMS Webhook gateway to intake emergency texts directly into the database.
+  Citizens can submit geolocation-based SOS requests via the web portal. For offline users, we have built a proof-of-concept SMS Webhook gateway that allows the backend to intake emergency text messages (currently simulated via Postman) directly into the database.
 - **🎛️ Admin Command Center:** 
   A unified dashboard allowing dispatchers to view all pending SOS requests, assign available volunteers, and allocate specific physical relief supplies to each rescue mission.
 - **📦 Smart Warehouse & Inventory:** 
