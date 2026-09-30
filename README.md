@@ -54,12 +54,12 @@ Built with a robust **Java Spring Boot backend** and a dynamic **React frontend*
 <details>
 <summary>Click to view screenshots</summary>
 
-- **Landing Page:** `![Landing Page](./docs/screenshots/landing_page.png)`
-- **Admin Command Center:** `![Admin Dashboard](./docs/screenshots/admin.png)`
-- **Citizen SOS Form:** `![Citizen SOS](./docs/screenshots/citizen.png)`
-- **Warehouse Inventory:** `![Inventory](./docs/screenshots/inventory.png)`
-- **Volunteer Task App:** `![Volunteer App](./docs/screenshots/volunteer.png)`
-- **Donor Portal:** `![Donor Portal](./docs/screenshots/donor.png)`
+- **Landing Page:** `![Landing Page](./assets/screenshots/landing_page.png)`
+- **Admin Command Center:** `![Admin Dashboard](./assets/screenshots/admin.png)`
+- **Citizen SOS Form:** `![Citizen SOS](./assets/screenshots/citizen.png)`
+- **Warehouse Inventory:** `![Inventory](./assets/screenshots/inventory.png)`
+- **Volunteer Task App:** `![Volunteer App](./assets/screenshots/volunteer.png)`
+- **Donor Portal:** `![Donor Portal](./assets/screenshots/donor.png)`
 
 </details>
 
