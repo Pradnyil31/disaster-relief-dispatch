@@ -50,7 +50,8 @@ Built with a robust **Java Spring Boot backend** and a dynamic **React frontend*
 ## 📸 Previews
 
 <details>
-<summary>Click to view screenshots</summary>
+<summary><b>👉 CLICK HERE TO REVEAL ALL UI SCREENSHOTS 📸</b></summary>
+<br/>
 
 - **Landing Page:** ![Landing Page](./assets/screenshots/landing_page.png)
 - **Admin Command Center:** ![Admin Dashboard](./assets/screenshots/admin.png)
