@@ -54,19 +54,19 @@ export function VolunteerDashboard() {
             <span>Volunteer Portal</span>
           </Link>
           <div className="d-flex align-items-center gap-2">
-            <Link to="/volunteer/tasks" className="btn btn-outline-light btn-sm rounded-pill px-2 px-sm-3 me-1 fs-7">
-              <i className="bi bi-list-task me-1"></i> <span className="d-none d-sm-inline">My Tasks</span>
+            <Link to="/volunteer/tasks" className="nav-custom-link">
+              <i className="bi bi-list-task"></i> <span>My Tasks</span>
             </Link>
-            <div className="d-none d-md-flex align-items-center gap-2 text-white bg-white bg-opacity-10 px-3 py-1 rounded-pill fs-7">
-              <i className="bi bi-person-circle"></i>
-              <span className="fw-medium text-truncate" style={{ maxWidth: '120px' }}>{user?.name || 'Volunteer'}</span>
+            <div className="nav-custom-badge d-none d-sm-flex">
+              <i className="bi bi-person-circle fs-5"></i>
+              <span className="text-truncate" style={{ maxWidth: '120px' }}>{user?.name || 'Volunteer'}</span>
             </div>
             <button
               type="button"
-              className="btn btn-outline-light btn-sm px-3 rounded-pill hover-lift fs-7 fw-semibold"
+              className="nav-logout-btn"
               onClick={logout}
             >
-              Logout
+              Logout <i className="bi bi-box-arrow-right"></i>
             </button>
           </div>
         </div>

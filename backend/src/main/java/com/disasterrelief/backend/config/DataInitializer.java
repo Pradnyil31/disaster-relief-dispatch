@@ -6,10 +6,12 @@ import com.disasterrelief.backend.model.User;
 import com.disasterrelief.backend.model.VolunteerStatus;
 import com.disasterrelief.backend.repository.InventoryRepository;
 import com.disasterrelief.backend.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class DataInitializer implements CommandLineRunner {
 
@@ -37,7 +39,7 @@ public class DataInitializer implements CommandLineRunner {
                     .isActive(true)
                     .build();
             userRepository.save(admin2);
-            System.out.println(">>> SEEDED ADMIN: patilpradnyil1@gmail.com / Pradnyil@31");
+            log.info("Seeded Admin: patilpradnyil1@gmail.com");
         }
         if (!userRepository.existsByEmail("admin@example.com")) {
             User admin = User.builder()
@@ -49,7 +51,7 @@ public class DataInitializer implements CommandLineRunner {
                     .isActive(true)
                     .build();
             userRepository.save(admin);
-            System.out.println(">>> SEEDED ADMIN USER: admin@example.com / admin123");
+            log.info("Seeded Admin User: admin@example.com");
         }
 
         if (!userRepository.existsByEmail("volunteer@example.com")) {
@@ -63,7 +65,7 @@ public class DataInitializer implements CommandLineRunner {
                     .isActive(true)
                     .build();
             userRepository.save(volunteer);
-            System.out.println(">>> SEEDED VOLUNTEER USER: volunteer@example.com / volunteer123");
+            log.info("Seeded Volunteer User: volunteer@example.com");
         }
 
         if (!userRepository.existsByEmail("neha@example.com")) {

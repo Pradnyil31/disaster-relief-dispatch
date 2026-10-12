@@ -137,26 +137,26 @@ export function VolunteerManagementPage() {
 
   return (
     <div className="min-vh-100 bg-light animate-fade-in">
-      <nav className="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm glass">
+      <nav className="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm glass py-2">
         <div className="container max-w-6xl">
-          <Link className="navbar-brand d-flex align-items-center gap-2 fw-bold" to="/admin">
+          <Link className="navbar-brand d-flex align-items-center gap-2 fw-bold fs-6 fs-sm-5 mb-0" to="/admin">
             <i className="bi bi-shield-lock-fill text-warning"></i>
-            Admin Command Center
+            <span>Admin Command Center</span>
           </Link>
           <div className="navbar-nav ms-auto align-items-center gap-2">
-            <Link to="/admin" className="btn btn-outline-light btn-sm rounded-pill px-3 me-2">
-              <i className="bi bi-speedometer2 me-1"></i> Dashboard
+            <Link to="/admin" className="nav-custom-link">
+              <i className="bi bi-speedometer2"></i> Dashboard
             </Link>
-            <div className="d-flex align-items-center gap-2 text-white bg-white bg-opacity-10 px-3 py-1 rounded-pill">
-              <i className="bi bi-person-badge"></i>
-              <span className="fw-medium">{user?.name || 'Admin'}</span>
+            <div className="nav-custom-badge">
+              <i className="bi bi-person-circle fs-5"></i>
+              <span className="text-truncate" style={{ maxWidth: '120px' }}>{user?.name || 'Admin'}</span>
             </div>
             <button
               type="button"
-              className="btn btn-outline-light btn-sm px-3 rounded-pill hover-lift me-1"
+              className="nav-logout-btn"
               onClick={logout}
             >
-              Logout
+              Logout <i className="bi bi-box-arrow-right"></i>
             </button>
           </div>
         </div>

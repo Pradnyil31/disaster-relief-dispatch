@@ -61,16 +61,19 @@ export function CitizenDashboard() {
             <span>Citizen Portal</span>
           </Link>
           <div className="d-flex align-items-center gap-2">
-            <div className="d-none d-sm-flex align-items-center gap-2 text-white bg-white bg-opacity-10 px-3 py-1 rounded-pill fs-7">
-              <i className="bi bi-person-circle"></i>
-              <span className="fw-medium text-truncate" style={{ maxWidth: '120px' }}>{user?.name}</span>
+            <Link to="/citizen/sos/history" className="nav-custom-link d-none d-sm-flex">
+              <i className="bi bi-clock-history"></i> My Requests
+            </Link>
+            <div className="nav-custom-badge d-none d-sm-flex">
+              <i className="bi bi-person-circle fs-5"></i>
+              <span className="text-truncate" style={{ maxWidth: '120px' }}>{user?.name || 'Citizen'}</span>
             </div>
             <button
               type="button"
-              className="btn btn-outline-light btn-sm px-3 rounded-pill hover-lift fs-7 fw-semibold"
+              className="nav-logout-btn"
               onClick={logout}
             >
-              Logout
+              Logout <i className="bi bi-box-arrow-right"></i>
             </button>
           </div>
         </div>
