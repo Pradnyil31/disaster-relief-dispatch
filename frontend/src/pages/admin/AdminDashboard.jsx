@@ -248,6 +248,20 @@ export function AdminDashboard() {
                   </div>
                 </Link>
               </div>
+
+              <div className="col-12 col-md-6 col-lg-4">
+                <Link to="/admin/users" className="card border p-3 h-100 text-decoration-none hover-shadow transition-all">
+                  <div className="d-flex align-items-center gap-3">
+                    <div className="bg-secondary bg-opacity-10 p-3 rounded-3 text-secondary">
+                      <i className="bi bi-person-lines-fill fs-4"></i>
+                    </div>
+                    <div>
+                      <h6 className="fw-bold text-dark mb-1">User Management</h6>
+                      <p className="fs-7 text-muted mb-0">Add/edit users, manage roles, and handle access control.</p>
+                    </div>
+                  </div>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

@@ -18,6 +18,7 @@ import { InventoryManagementPage } from '../pages/admin/InventoryManagementPage'
 import { VolunteerManagementPage } from '../pages/admin/VolunteerManagementPage';
 import { DispatchManagementPage } from '../pages/admin/DispatchManagementPage';
 import { DonationManagementPage } from '../pages/admin/DonationManagementPage';
+import { UserManagementPage } from '../pages/admin/UserManagementPage';
 import { DonorDashboard } from '../pages/donor/DonorDashboard';
 import { MyDonationsPage } from '../pages/donor/MyDonationsPage';
 
@@ -67,6 +68,7 @@ export function AppRoutes() {
               <Route path="dispatch" element={<DispatchManagementPage />} />
               <Route path="dispatch/:id" element={<TaskDetailPage />} />
               <Route path="donations" element={<DonationManagementPage />} />
+              <Route path="users" element={<UserManagementPage />} />
             </Routes>
           </ProtectedRoute>
         }

@@ -42,9 +42,16 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "is_active", nullable = false, columnDefinition = "boolean default true")
+    @Builder.Default
+    private Boolean isActive = true;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+        if (this.isActive == null) {
+            this.isActive = true;
+        }
         if (this.role == Role.VOLUNTEER && this.volunteerStatus == null) {
             this.volunteerStatus = VolunteerStatus.AVAILABLE;
         }

@@ -34,6 +34,7 @@ public class DataInitializer implements CommandLineRunner {
                     .password(passwordEncoder.encode("Pradnyil@31"))
                     .role(Role.ADMINISTRATOR)
                     .phone("9960250153")
+                    .isActive(true)
                     .build();
             userRepository.save(admin2);
             System.out.println(">>> SEEDED ADMIN: patilpradnyil1@gmail.com / Pradnyil@31");
@@ -45,6 +46,7 @@ public class DataInitializer implements CommandLineRunner {
                     .password(passwordEncoder.encode("admin123"))
                     .role(Role.ADMINISTRATOR)
                     .phone("9999900000")
+                    .isActive(true)
                     .build();
             userRepository.save(admin);
             System.out.println(">>> SEEDED ADMIN USER: admin@example.com / admin123");
@@ -58,6 +60,7 @@ public class DataInitializer implements CommandLineRunner {
                     .role(Role.VOLUNTEER)
                     .phone("9888811111")
                     .volunteerStatus(VolunteerStatus.AVAILABLE)
+                    .isActive(true)
                     .build();
             userRepository.save(volunteer);
             System.out.println(">>> SEEDED VOLUNTEER USER: volunteer@example.com / volunteer123");
@@ -71,6 +74,7 @@ public class DataInitializer implements CommandLineRunner {
                     .role(Role.VOLUNTEER)
                     .phone("9833344556")
                     .volunteerStatus(VolunteerStatus.AVAILABLE)
+                    .isActive(true)
                     .build();
             userRepository.save(v2);
         }

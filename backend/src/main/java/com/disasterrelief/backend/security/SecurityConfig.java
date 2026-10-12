@@ -14,8 +14,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -59,6 +62,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/donations/my").authenticated()
                         .requestMatchers("/api/v1/donations/{id}/approve").hasRole("ADMINISTRATOR")
                         .requestMatchers("/api/v1/donations/{id}/verify-payment").hasRole("ADMINISTRATOR")
+                        .requestMatchers("/api/v1/admin/users/**").hasRole("ADMINISTRATOR")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
