@@ -37,8 +37,8 @@ export function TaskDetailPage() {
       setTask(updated);
       setStatusNote('');
       toast.success(`Task status updated to ${newStatus.replace('_', ' ')}!`);
-    } catch {
-      toast.error('Failed to update task status');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to update task status');
     } finally {
       setUpdatingStatus(false);
     }
@@ -275,11 +275,11 @@ export function TaskDetailPage() {
                 </a>
               </div>
 
-              {task.citizenNotes && (
+              {(task.citizenNotes || task.notes) && (
                 <div>
                   <span className="text-muted fs-7 text-uppercase fw-semibold d-block">Citizen Notes / Remarks</span>
-                  <div className="p-3 bg-light rounded-3 text-dark border fs-7 italic mt-1">
-                    "{task.citizenNotes}"
+                  <div className="p-3 bg-light rounded-3 text-dark border fs-7 fst-italic mt-1">
+                    "{task.citizenNotes || task.notes}"
                   </div>
                 </div>
               )}

@@ -87,6 +87,7 @@ export const sosApi = {
       locationName: data.locationName || data.locationAddress || 'Captured Geolocation',
       requiredSupplies: Array.isArray(data.requiredSupplies) ? data.requiredSupplies : (data.requiredSupplies ? [data.requiredSupplies] : []),
       citizenPhone: data.citizenPhone || data.phoneNumber || currentUser?.phone || '',
+      notes: data.notes || '',
     };
     const res = await axiosClient.post('/sos', payload);
     return normalizeSos(res.data);

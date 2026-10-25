@@ -33,8 +33,8 @@ export function VolunteerDashboard() {
       await dispatchApi.updateStatus(taskId, newStatus);
       toast.success(`Task status updated to ${newStatus.replace('_', ' ')}`);
       await fetchTasks();
-    } catch {
-      toast.error('Failed to update task status');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to update task status');
     } finally {
       setUpdatingId(null);
     }
@@ -180,6 +180,13 @@ export function VolunteerDashboard() {
                       <p className="text-muted fs-7 mb-2 d-flex align-items-center gap-1">
                         <i className="bi bi-geo-alt text-danger"></i> {task.locationName || `${task.latitude}, ${task.longitude}`}
                       </p>
+
+                      {task.citizenNotes && (
+                        <div className="mb-2 p-2 bg-light rounded border-start border-3 border-info fs-7 text-dark">
+                          <i className="bi bi-chat-left-quote text-info me-1"></i>
+                          <span className="fw-semibold">Citizen Note:</span> "{task.citizenNotes}"
+                        </div>
+                      )}
 
                       {/* Required supplies list */}
                       <div className="mb-3">

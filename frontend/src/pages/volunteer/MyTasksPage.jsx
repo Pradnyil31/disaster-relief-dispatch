@@ -164,6 +164,12 @@ export function MyTasksPage() {
                           <div className="fs-7 text-muted">
                             <i className="bi bi-telephone me-1"></i>{task.citizenPhone || 'N/A'}
                           </div>
+                          {task.citizenNotes && (
+                            <div className="fs-8 text-muted fst-italic mt-1" title={task.citizenNotes}>
+                              <i className="bi bi-chat-left-quote text-info me-1"></i>
+                              "{task.citizenNotes.length > 30 ? `${task.citizenNotes.substring(0, 30)}...` : task.citizenNotes}"
+                            </div>
+                          )}
                         </td>
                         <td>
                           <span className={`badge ${getUrgencyBadgeClass(task.urgencyLevel)} px-2 py-1`}>

@@ -66,6 +66,11 @@ public class DispatchService {
             throw new BusinessRuleException("User with id " + request.getVolunteerId() + " does not have the VOLUNTEER role");
         }
 
+        if (volunteer.getVolunteerStatus() == VolunteerStatus.BUSY ||
+                dispatchTaskRepository.countByVolunteerAndStatusNot(volunteer, TaskStatus.DELIVERED) > 0) {
+            throw new BusinessRuleException("Volunteer '" + volunteer.getName() + "' is currently BUSY on another assignment and cannot be assigned to a new dispatch task.");
+        }
+
         String cleanNotes = request.getNotes() != null ? request.getNotes().trim() : null;
 
         DispatchTask task = DispatchTask.builder()

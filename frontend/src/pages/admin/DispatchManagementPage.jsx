@@ -71,10 +71,20 @@ export function DispatchManagementPage() {
     const sosObj = pendingSosList.find(s => String(s.id) === String(selectedSosId));
     const volObj = volunteers.find(v => String(v.id) === String(selectedVolunteerId));
 
+    if (volObj?.status === 'BUSY' || (volObj?.activeTasksCount && volObj.activeTasksCount > 0)) {
+      toast.error(`Volunteer ${volObj.name} is currently BUSY on another assignment and cannot take on a new task.`);
+      return;
+    }
+
     try {
       setAssigning(true);
       
-      const validAllocations = allocations.filter(a => a.inventoryItemId && a.quantityDeducted > 0);
+      const validAllocations = allocations
+        .filter(a => a.inventoryItemId && Number(a.quantityDeducted) > 0)
+        .map(a => ({
+          inventoryItemId: a.inventoryItemId,
+          quantityDeducted: Number(a.quantityDeducted),
+        }));
       
       await dispatchApi.assign({
         sosId: selectedSosId,
@@ -176,6 +186,22 @@ export function DispatchManagementPage() {
                     </option>
                   ))}
                 </select>
+                {(() => {
+                  const selectedSos = pendingSosList.find(s => String(s.id) === String(selectedSosId));
+                  if (!selectedSos) return null;
+                  return (
+                    <div className="mt-2 p-2 bg-light rounded-2 border fs-8">
+                      <div className="d-flex justify-content-between text-dark fw-semibold mb-1">
+                        <span><i className="bi bi-geo-alt text-danger me-1"></i>{selectedSos.locationName || `${selectedSos.latitude}, ${selectedSos.longitude}`}</span>
+                        <span className="text-muted"><i className="bi bi-telephone text-success me-1"></i>{selectedSos.citizenPhone || 'N/A'}</span>
+                      </div>
+                      <div className="p-2 bg-white rounded border text-dark">
+                        <i className="bi bi-chat-left-quote text-primary me-1"></i>
+                        <strong>Citizen Note:</strong> {selectedSos.notes ? `"${selectedSos.notes}"` : <span className="text-muted fst-italic">No note written by citizen</span>}
+                      </div>
+                    </div>
+                  );
+                })()}
                 {pendingSosList.length === 0 && (
                   <span className="fs-7 text-success mt-1 d-block">
                     <i className="bi bi-check-circle me-1"></i> No pending unassigned SOS requests!
@@ -193,12 +219,33 @@ export function DispatchManagementPage() {
                   required
                 >
                   <option value="">-- Choose Volunteer --</option>
-                  {volunteers.map((v) => (
-                    <option key={v.id} value={v.id}>
-                      {v.name} ({v.zone || 'General'} - Status: {v.status})
-                    </option>
-                  ))}
+                  {volunteers.map((v) => {
+                    const isBusy = v.status === 'BUSY' || (v.activeTasksCount && v.activeTasksCount > 0);
+                    return (
+                      <option key={v.id} value={v.id} disabled={isBusy}>
+                        {v.name} ({v.zone || 'General'}) — {isBusy ? '⛔ BUSY (On Mission)' : '✓ AVAILABLE'}
+                      </option>
+                    );
+                  })}
                 </select>
+                {(() => {
+                  const selVol = volunteers.find(v => String(v.id) === String(selectedVolunteerId));
+                  if (!selVol) return null;
+                  const isBusy = selVol.status === 'BUSY' || (selVol.activeTasksCount && selVol.activeTasksCount > 0);
+                  if (isBusy) {
+                    return (
+                      <div className="alert alert-danger py-1 px-2 fs-8 mt-1 mb-0 d-flex align-items-center gap-1">
+                        <i className="bi bi-exclamation-triangle-fill"></i>
+                        <span><strong>{selVol.name}</strong> is currently BUSY on another mission. Please select an available volunteer.</span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <span className="fs-8 text-success mt-1 d-block">
+                      <i className="bi bi-check-circle me-1"></i> Volunteer is available for dispatch.
+                    </span>
+                  );
+                })()}
               </div>
             </div>
 
@@ -236,11 +283,20 @@ export function DispatchManagementPage() {
                       type="number"
                       className="form-control"
                       min="1"
+                      placeholder="Qty"
                       value={allocation.quantityDeducted}
                       onChange={(e) => {
+                        const val = e.target.value;
                         const newAllocations = [...allocations];
-                        newAllocations[index].quantityDeducted = Number(e.target.value);
+                        newAllocations[index].quantityDeducted = val === '' ? '' : Math.max(0, parseInt(val, 10) || 0);
                         setAllocations(newAllocations);
+                      }}
+                      onBlur={() => {
+                        if (allocation.quantityDeducted === '' || Number(allocation.quantityDeducted) <= 0) {
+                          const newAllocations = [...allocations];
+                          newAllocations[index].quantityDeducted = 1;
+                          setAllocations(newAllocations);
+                        }
                       }}
                       disabled={!allocation.inventoryItemId}
                     />
@@ -348,9 +404,15 @@ export function DispatchManagementPage() {
                         <td>
                           <div className="fw-medium text-dark">{d.citizenName}</div>
                           {d.citizenPhone && (
-                            <a href={`tel:${d.citizenPhone}`} className="fs-7 text-success text-decoration-none">
+                            <a href={`tel:${d.citizenPhone}`} className="fs-7 text-success text-decoration-none d-block">
                               <i className="bi bi-telephone-fill me-1"></i>{d.citizenPhone}
                             </a>
+                          )}
+                          {d.citizenNotes && (
+                            <div className="fs-8 text-muted fst-italic mt-1" title={d.citizenNotes}>
+                              <i className="bi bi-chat-left-quote text-primary me-1"></i>
+                              "{d.citizenNotes.length > 35 ? `${d.citizenNotes.substring(0, 35)}...` : d.citizenNotes}"
+                            </div>
                           )}
                         </td>
                         <td>
