@@ -59,6 +59,40 @@
           "            pm.environment.set('volunteerToken', data.token);",
           "        }",
           "    });",
+          "}",
+          "",
+          "// Auto-login for Citizen if token is missing",
+          "if (headers.includes('citizenToken') && !pm.collectionVariables.get('citizenToken') && !pm.environment.get('citizenToken')) {",
+          "    const cEmail = pm.collectionVariables.get('citizenEmail') || pm.environment.get('citizenEmail') || 'citizen@example.com';",
+          "    pm.sendRequest({",
+          "        url: baseUrl + '/auth/login',",
+          "        method: 'POST',",
+          "        header: { 'Content-Type': 'application/json' },",
+          "        body: { mode: 'raw', raw: JSON.stringify({ email: cEmail, password: 'password123' }) }",
+          "    }, function (err, res) {",
+          "        if (!err && res.code === 200) {",
+          "            const data = res.json();",
+          "            pm.collectionVariables.set('citizenToken', data.token);",
+          "            pm.environment.set('citizenToken', data.token);",
+          "        }",
+          "    });",
+          "}",
+          "",
+          "// Auto-login for Donor if token is missing",
+          "if (headers.includes('donorToken') && !pm.collectionVariables.get('donorToken') && !pm.environment.get('donorToken')) {",
+          "    const dEmail = pm.collectionVariables.get('donorEmail') || pm.environment.get('donorEmail') || 'donor@example.com';",
+          "    pm.sendRequest({",
+          "        url: baseUrl + '/auth/login',",
+          "        method: 'POST',",
+          "        header: { 'Content-Type': 'application/json' },",
+          "        body: { mode: 'raw', raw: JSON.stringify({ email: dEmail, password: 'password123' }) }",
+          "    }, function (err, res) {",
+          "        if (!err && res.code === 200) {",
+          "            const data = res.json();",
+          "            pm.collectionVariables.set('donorToken', data.token);",
+          "            pm.environment.set('donorToken', data.token);",
+          "        }",
+          "    });",
           "}"
         ]
       }
@@ -117,11 +151,19 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
-                  "const email = pm.collectionVariables.get('citizenEmail') || pm.environment.get('citizenEmail');",
+                  "const baseUrl = pm.collectionVariables.get('baseUrl') || pm.environment.get('baseUrl') || 'http://localhost:8080/api/v1';",
+                  "let email = pm.collectionVariables.get('citizenEmail') || pm.environment.get('citizenEmail');",
                   "if (!email || email.trim() === '') {",
-                  "    pm.collectionVariables.set('citizenEmail', 'citizen@example.com');",
-                  "    pm.environment.set('citizenEmail', 'citizen@example.com');",
-                  "}"
+                  "    email = 'citizen@example.com';",
+                  "    pm.collectionVariables.set('citizenEmail', email);",
+                  "    pm.environment.set('citizenEmail', email);",
+                  "}",
+                  "pm.sendRequest({",
+                  "    url: baseUrl + '/auth/register',",
+                  "    method: 'POST',",
+                  "    header: { 'Content-Type': 'application/json' },",
+                  "    body: { mode: 'raw', raw: JSON.stringify({ name: 'Jane Citizen', email: email, password: 'password123', role: 'CITIZEN', phone: '9876543210' }) }",
+                  "}, function () {});"
                 ],
                 "type": "text/javascript"
               }
@@ -262,11 +304,19 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
-                  "const email = pm.collectionVariables.get('donorEmail') || pm.environment.get('donorEmail');",
+                  "const baseUrl = pm.collectionVariables.get('baseUrl') || pm.environment.get('baseUrl') || 'http://localhost:8080/api/v1';",
+                  "let email = pm.collectionVariables.get('donorEmail') || pm.environment.get('donorEmail');",
                   "if (!email || email.trim() === '') {",
-                  "    pm.collectionVariables.set('donorEmail', 'donor@example.com');",
-                  "    pm.environment.set('donorEmail', 'donor@example.com');",
-                  "}"
+                  "    email = 'donor@example.com';",
+                  "    pm.collectionVariables.set('donorEmail', email);",
+                  "    pm.environment.set('donorEmail', email);",
+                  "}",
+                  "pm.sendRequest({",
+                  "    url: baseUrl + '/auth/register',",
+                  "    method: 'POST',",
+                  "    header: { 'Content-Type': 'application/json' },",
+                  "    body: { mode: 'raw', raw: JSON.stringify({ name: 'Dave Donor', email: email, password: 'password123', role: 'DONOR', phone: '9777712345' }) }",
+                  "}, function () {});"
                 ],
                 "type": "text/javascript"
               }
