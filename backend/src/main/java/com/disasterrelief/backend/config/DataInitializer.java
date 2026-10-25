@@ -68,17 +68,30 @@ public class DataInitializer implements CommandLineRunner {
             log.info("Seeded Volunteer User: volunteer@example.com");
         }
 
-        if (!userRepository.existsByEmail("neha@example.com")) {
-            User v2 = User.builder()
-                    .name("Neha Sharma")
-                    .email("neha@example.com")
-                    .password(passwordEncoder.encode("volunteer123"))
-                    .role(Role.VOLUNTEER)
-                    .phone("9833344556")
-                    .volunteerStatus(VolunteerStatus.AVAILABLE)
+        if (!userRepository.existsByEmail("citizen@example.com")) {
+            User citizen = User.builder()
+                    .name("Jane Citizen")
+                    .email("citizen@example.com")
+                    .password(passwordEncoder.encode("password123"))
+                    .role(Role.CITIZEN)
+                    .phone("9876543210")
                     .isActive(true)
                     .build();
-            userRepository.save(v2);
+            userRepository.save(citizen);
+            log.info("Seeded Citizen User: citizen@example.com");
+        }
+
+        if (!userRepository.existsByEmail("donor@example.com")) {
+            User donor = User.builder()
+                    .name("Dave Donor")
+                    .email("donor@example.com")
+                    .password(passwordEncoder.encode("password123"))
+                    .role(Role.DONOR)
+                    .phone("9777712345")
+                    .isActive(true)
+                    .build();
+            userRepository.save(donor);
+            log.info("Seeded Donor User: donor@example.com");
         }
 
         if (inventoryRepository.count() == 0) {

@@ -11,8 +11,8 @@
     { "key": "volunteerToken", "value": "", "type": "string" },
     { "key": "citizenToken", "value": "", "type": "string" },
     { "key": "donorToken", "value": "", "type": "string" },
-    { "key": "citizenEmail", "value": "", "type": "string" },
-    { "key": "donorEmail", "value": "", "type": "string" },
+    { "key": "citizenEmail", "value": "citizen@example.com", "type": "string" },
+    { "key": "donorEmail", "value": "donor@example.com", "type": "string" },
     { "key": "sosId", "value": "1", "type": "string" },
     { "key": "inventoryId", "value": "1", "type": "string" },
     { "key": "dispatchId", "value": "1", "type": "string" },
@@ -113,6 +113,19 @@
         {
           "name": "Login Citizen User",
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const email = pm.collectionVariables.get('citizenEmail') || pm.environment.get('citizenEmail');",
+                  "if (!email || email.trim() === '') {",
+                  "    pm.collectionVariables.set('citizenEmail', 'citizen@example.com');",
+                  "    pm.environment.set('citizenEmail', 'citizen@example.com');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -245,6 +258,19 @@
         {
           "name": "Login Donor User",
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const email = pm.collectionVariables.get('donorEmail') || pm.environment.get('donorEmail');",
+                  "if (!email || email.trim() === '') {",
+                  "    pm.collectionVariables.set('donorEmail', 'donor@example.com');",
+                  "    pm.environment.set('donorEmail', 'donor@example.com');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
             {
               "listen": "test",
               "script": {
