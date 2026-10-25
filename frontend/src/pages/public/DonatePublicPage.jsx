@@ -51,8 +51,8 @@ export function DonatePublicPage() {
 
       setSuccessReceipt(created);
       toast.success('Pledge submitted successfully! Coordinator will review & approve.');
-    } catch {
-      toast.error('Failed to submit pledge. Please try again.');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to submit pledge. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -85,8 +85,8 @@ export function DonatePublicPage() {
       setShowPaymentGatewayModal(false);
       setSuccessReceipt(created);
       toast.success('Payment completed & verified successfully! Thank you for your support.');
-    } catch {
-      toast.error('Failed to record financial donation');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to record financial donation');
     } finally {
       setSubmitting(false);
     }

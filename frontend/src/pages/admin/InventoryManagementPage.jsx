@@ -11,6 +11,7 @@ export function InventoryManagementPage() {
   const [lowStockItems, setLowStockItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
@@ -85,8 +86,8 @@ export function InventoryManagementPage() {
       }
       setShowModal(false);
       await fetchInventory();
-    } catch {
-      toast.error('Failed to save inventory item');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to save inventory item');
     } finally {
       setSaving(false);
     }
@@ -98,8 +99,8 @@ export function InventoryManagementPage() {
       await inventoryApi.delete(id);
       toast.success('Item removed from inventory');
       await fetchInventory();
-    } catch {
-      toast.error('Failed to delete inventory item');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to delete inventory item');
     }
   };
 
@@ -192,9 +193,34 @@ export function InventoryManagementPage() {
                 <option value="FUEL_AND_ENERGY">Fuel & Energy</option>
                 <option value="RESCUE_EQUIPMENT">Rescue Equipment</option>
                 <option value="COMMUNICATION_DEVICES">Communication Devices</option>
+                <option value="OTHER">Other Supplies</option>
               </select>
             </div>
 
+            <div className="col-12 col-md-6">
+              <label className="form-label fs-7 text-uppercase fw-semibold text-muted mb-1">Search Item Name</label>
+              <div className="input-group input-group-sm">
+                <span className="input-group-text bg-light text-muted border-end-0">
+                  <i className="bi bi-search"></i>
+                </span>
+                <input
+                  type="text"
+                  className="form-control bg-light border-start-0"
+                  placeholder="Search by stock item name..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                {searchTerm && (
+                  <button
+                    className="btn btn-outline-secondary border-start-0 bg-light"
+                    type="button"
+                    onClick={() => setSearchTerm('')}
+                  >
+                    <i className="bi bi-x"></i>
+                  </button>
+                )}
+              </div>
+            </div>
 
           </div>
         </div>
@@ -202,7 +228,9 @@ export function InventoryManagementPage() {
         {/* Inventory Items Table */}
         <div className="card border-0 shadow-sm rounded-3">
           <div className="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-            <h5 className="fw-bold mb-0 text-dark">Warehouse Inventory Stock ({items.length})</h5>
+            <h5 className="fw-bold mb-0 text-dark">
+              Warehouse Inventory Stock ({items.filter(i => !searchTerm.trim() || i.name?.toLowerCase().includes(searchTerm.toLowerCase())).length}{searchTerm ? ` of ${items.length}` : ''})
+            </h5>
           </div>
 
           <div className="card-body p-0">
@@ -213,11 +241,13 @@ export function InventoryManagementPage() {
                 </div>
                 <p className="text-muted mt-2 mb-0">Loading stock items...</p>
               </div>
-            ) : items.length === 0 ? (
+            ) : items.filter(i => !searchTerm.trim() || i.name?.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 ? (
               <div className="text-center py-5">
                 <i className="bi bi-box-seam fs-1 text-muted d-block mb-2 opacity-50"></i>
                 <h5 className="fw-bold text-dark mb-1">No Stock Items Found</h5>
-                <p className="text-muted mb-0">Click "Add New Stock Item" to create your first inventory item.</p>
+                <p className="text-muted mb-0">
+                  {searchTerm ? 'No items match your search query.' : 'Click "Add New Stock Item" to create your first inventory item.'}
+                </p>
               </div>
             ) : (
               <div className="table-responsive">
@@ -234,7 +264,9 @@ export function InventoryManagementPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {items.map((i) => {
+                    {items
+                      .filter(i => !searchTerm.trim() || i.name?.toLowerCase().includes(searchTerm.toLowerCase()))
+                      .map((i) => {
                       const isLow = i.quantity <= i.minimumThreshold;
                       return (
                         <tr key={i.id} className={isLow ? 'table-danger bg-opacity-10' : ''}>
@@ -328,6 +360,7 @@ export function InventoryManagementPage() {
                         <option value="FUEL_AND_ENERGY">Fuel & Energy</option>
                         <option value="RESCUE_EQUIPMENT">Rescue Equipment</option>
                         <option value="COMMUNICATION_DEVICES">Communication Devices</option>
+                        <option value="OTHER">Other Supplies</option>
                       </select>
                     </div>
                   </div>

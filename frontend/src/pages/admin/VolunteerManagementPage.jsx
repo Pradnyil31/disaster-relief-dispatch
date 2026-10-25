@@ -119,8 +119,8 @@ export function VolunteerManagementPage() {
       await volunteerApi.updateStatus(volId, nextStatus);
       toast.success(`Volunteer status set to ${nextStatus}`);
       await fetchVolunteers();
-    } catch {
-      toast.error('Failed to update status');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to update status');
     } finally {
       setUpdatingId(null);
     }

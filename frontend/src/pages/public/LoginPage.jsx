@@ -4,8 +4,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema } from '../../utils/validators';
 import { useAuthContext } from '../../context/AuthContext';
-import { useNotification } from '../../context/NotificationContext';
 import { ROLES } from '../../utils/constants';
+import toast from 'react-hot-toast';
 
 const ROLE_ROUTES = {
   [ROLES.ADMINISTRATOR]: '/admin',
@@ -17,9 +17,9 @@ const ROLE_ROUTES = {
 export function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuthContext();
-  const { notify } = useNotification();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState('');
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(loginSchema),
@@ -27,12 +27,15 @@ export function LoginPage() {
 
   const onSubmit = async (data) => {
     setLoading(true);
+    setLoginError('');
     try {
       const userData = await login(data);
-      notify({ message: 'Login successful', severity: 'success' });
+      toast.success('Login successful! Welcome back.');
       navigate(ROLE_ROUTES[userData.role] || '/', { replace: true });
     } catch (err) {
-      notify({ message: err.message || 'Login failed', severity: 'error' });
+      const errMsg = err?.message || 'Login failed. Please check your credentials.';
+      setLoginError(errMsg);
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }
@@ -76,6 +79,14 @@ export function LoginPage() {
               Register
             </Link>
           </div>
+
+          {/* Inline Error Alert */}
+          {loginError && (
+            <div className="alert alert-danger d-flex align-items-center gap-2 rounded-3 py-2.5 px-3 fs-7 mb-3 border-danger border-opacity-25 animate-fade-in" role="alert">
+              <i className="bi bi-exclamation-octagon-fill text-danger fs-6 flex-shrink-0"></i>
+              <div>{loginError}</div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="mb-4">

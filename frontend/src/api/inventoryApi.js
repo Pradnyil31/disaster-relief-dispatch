@@ -14,7 +14,7 @@ export function normalizeInventory(item) {
 
 export const inventoryApi = {
   list: async (params = {}) => {
-    const queryParams = { ...params };
+    const queryParams = { page: 0, size: 200, ...params };
     if (queryParams.category === 'ALL') delete queryParams.category;
     const res = await axiosClient.get('/inventory', { params: queryParams });
     const rawContent = res.data?.content || (Array.isArray(res.data) ? res.data : []);
@@ -59,7 +59,7 @@ export const inventoryApi = {
   },
 
   lowStock: async () => {
-    const res = await axiosClient.get('/inventory', { params: { lowStock: true } });
+    const res = await axiosClient.get('/inventory', { params: { lowStock: true, size: 200 } });
     const raw = Array.isArray(res.data) ? res.data : (res.data?.content || []);
     return raw.map(normalizeInventory);
   },

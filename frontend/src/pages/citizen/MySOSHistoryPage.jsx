@@ -62,7 +62,7 @@ export function MySOSHistoryPage() {
         }
       } catch (err) {
         if (!cancelled) {
-          notify({ message: err?.response?.data?.message || 'Failed to load SOS history.', severity: 'error' });
+          notify({ message: err?.message || err?.response?.data?.message || 'Failed to load SOS history.', severity: 'error' });
         }
       } finally {
         if (!cancelled) setLoading(false);

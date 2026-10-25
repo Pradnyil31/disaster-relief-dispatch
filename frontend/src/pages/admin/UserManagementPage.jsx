@@ -52,8 +52,8 @@ export function UserManagementPage() {
       setUsers((prev) =>
         prev.map((u) => (u.id === targetUser.id ? { ...u, isActive: nextStatus } : u))
       );
-    } catch {
-      toast.error('Failed to update user status');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to update user status');
     } finally {
       setTogglingId(null);
     }

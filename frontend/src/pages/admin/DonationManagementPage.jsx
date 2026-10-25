@@ -40,8 +40,8 @@ export function DonationManagementPage() {
       await donationApi.approvePledge(id);
       toast.success(`Pledge approved! Added ${quantity} units of ${itemName} directly to relief inventory.`);
       await fetchDonations();
-    } catch {
-      toast.error('Failed to approve pledge');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to approve pledge');
     } finally {
       setProcessingId(null);
     }
@@ -53,8 +53,8 @@ export function DonationManagementPage() {
       await donationApi.verifyPayment(id);
       toast.success('Monetary donation verified!');
       await fetchDonations();
-    } catch {
-      toast.error('Failed to verify payment');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to verify payment');
     } finally {
       setProcessingId(null);
     }
@@ -67,8 +67,8 @@ export function DonationManagementPage() {
       await donationApi.rejectPledge(id);
       toast.success('Donation cancelled/rejected successfully.');
       await fetchDonations();
-    } catch {
-      toast.error('Failed to reject pledge');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to reject pledge');
     } finally {
       setProcessingId(null);
     }

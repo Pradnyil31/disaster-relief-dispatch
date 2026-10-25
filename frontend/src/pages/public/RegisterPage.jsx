@@ -4,15 +4,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema } from '../../utils/validators';
 import { useAuthContext } from '../../context/AuthContext';
-import { useNotification } from '../../context/NotificationContext';
 import { REGISTERABLE_ROLES } from '../../utils/constants';
+import toast from 'react-hot-toast';
 
 export function RegisterPage() {
   const navigate = useNavigate();
   const { register: registerUser } = useAuthContext();
-  const { notify } = useNotification();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [registerError, setRegisterError] = useState('');
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm({
     resolver: zodResolver(registerSchema),
@@ -22,11 +22,14 @@ export function RegisterPage() {
 
   const onSubmit = async (data) => {
     setLoading(true);
+    setRegisterError('');
     try {
       const user = await registerUser(data);
-      notify({ message: `Registration successful! Welcome, ${user?.name || 'User'}.`, severity: 'success' });
+      toast.success(`Registration successful! Welcome, ${user?.name || 'User'}.`);
     } catch (err) {
-      notify({ message: err.message || 'Registration failed', severity: 'error' });
+      const errMsg = err?.message || 'Registration failed. Please try again.';
+      setRegisterError(errMsg);
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }
@@ -70,6 +73,14 @@ export function RegisterPage() {
               Register
             </button>
           </div>
+
+          {/* Inline Error Alert */}
+          {registerError && (
+            <div className="alert alert-danger d-flex align-items-center gap-2 rounded-3 py-2.5 px-3 fs-7 mb-3 border-danger border-opacity-25 animate-fade-in" role="alert">
+              <i className="bi bi-exclamation-octagon-fill text-danger fs-6 flex-shrink-0"></i>
+              <div>{registerError}</div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
             

@@ -27,7 +27,9 @@ axiosClient.interceptors.response.use(
       const { status, data } = error.response;
       const message = data?.message || 'Request failed';
 
-      if (status === 401) {
+      // Only redirect on 401 if it's an expired session on a protected route, NOT a failed login attempt
+      const isAuthRequest = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/register');
+      if (status === 401 && !isAuthRequest && window.location.pathname !== '/login') {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         window.location.href = '/login';
@@ -35,11 +37,17 @@ axiosClient.interceptors.response.use(
         console.error('Access denied:', message);
       }
 
-      return Promise.reject({ status, message, timestamp: data?.timestamp });
+      const customError = new Error(message);
+      customError.status = status;
+      customError.message = message;
+      customError.response = error.response;
+      return Promise.reject(customError);
     } else if (error.request) {
-      return Promise.reject({ status: 0, message: 'Network error. Check connection.' });
+      const netError = new Error('Network error. Check connection.');
+      netError.status = 0;
+      return Promise.reject(netError);
     }
-    return Promise.reject({ status: -1, message: 'Unexpected error' });
+    return Promise.reject(error);
   }
 );
 

@@ -75,7 +75,7 @@ export function UserModal({ user, onClose, onSuccess }) {
       }
       onSuccess();
     } catch (err) {
-      notify({ message: err?.response?.data?.message || 'Operation failed', severity: 'error' });
+      notify({ message: err?.message || err?.response?.data?.message || 'Operation failed', severity: 'error' });
     } finally {
       setSubmitting(false);
     }
@@ -101,8 +101,8 @@ export function UserModal({ user, onClose, onSuccess }) {
           <div className="card-header bg-primary text-white py-3 px-4 d-flex align-items-center justify-content-between">
             <div className="d-flex align-items-center gap-2">
               <div
-                className="bg-white bg-opacity-20 p-2 rounded-circle d-flex align-items-center justify-content-center text-white"
-                style={{ width: '38px', height: '38px' }}
+                className="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                style={{ width: '38px', height: '38px', minWidth: '38px' }}
               >
                 <i className={`bi ${isEditing ? 'bi-person-gear' : 'bi-person-plus-fill'} fs-5`}></i>
               </div>

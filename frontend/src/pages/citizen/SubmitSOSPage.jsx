@@ -78,7 +78,7 @@ export function SubmitSOSPage() {
       notify({ message: 'SOS request submitted successfully. Help is on the way!', severity: 'success' });
       navigate('/citizen/sos/history');
     } catch (err) {
-      notify({ message: err?.response?.data?.message || 'Failed to submit SOS. Please try again.', severity: 'error' });
+      notify({ message: err?.message || err?.response?.data?.message || 'Failed to submit SOS. Please try again.', severity: 'error' });
     } finally {
       setSubmitting(false);
     }
