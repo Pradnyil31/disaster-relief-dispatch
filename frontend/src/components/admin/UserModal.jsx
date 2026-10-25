@@ -7,6 +7,7 @@ import { useNotification } from '../../context/NotificationContext';
 export function UserModal({ user, onClose, onSuccess }) {
   const { notify } = useNotification();
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const isEditing = !!user;
 
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
@@ -198,11 +199,20 @@ export function UserModal({ user, onClose, onSuccess }) {
                       <i className="bi bi-key"></i>
                     </span>
                     <input
-                      type="text"
-                      className={`form-control bg-light border-start-0 ${errors.password ? 'is-invalid' : ''}`}
+                      type={showPassword ? 'text' : 'password'}
+                      className={`form-control bg-light border-start-0 border-end-0 ${errors.password ? 'is-invalid' : ''}`}
                       placeholder="Min. 6 characters"
                       {...register('password', { required: 'Password is required' })}
                     />
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary bg-light border-start-0 text-muted"
+                      onClick={() => setShowPassword(!showPassword)}
+                      tabIndex={-1}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      <i className={`bi ${showPassword ? 'bi-eye-slash-fill' : 'bi-eye-fill'}`}></i>
+                    </button>
                   </div>
                   {errors.password && <div className="text-danger fs-8 mt-1">{errors.password.message}</div>}
                 </div>

@@ -19,6 +19,7 @@ export function LoginPage() {
   const { login } = useAuthContext();
   const { notify } = useNotification();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(loginSchema),
@@ -101,13 +102,22 @@ export function LoginPage() {
               <div className="position-relative">
                 <i className="bi bi-lock position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   id="password"
-                  className={`form-control ps-5 py-2 ${errors.password ? 'is-invalid' : ''}`}
+                  className={`form-control ps-5 pe-5 py-2 ${errors.password ? 'is-invalid' : ''}`}
                   {...register('password')}
                   placeholder="••••••••"
                   disabled={loading}
                 />
+                <button
+                  type="button"
+                  className="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted text-decoration-none pe-3 border-0 bg-transparent shadow-none"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  tabIndex={-1}
+                >
+                  <i className={`bi ${showPassword ? 'bi-eye-slash-fill' : 'bi-eye-fill'}`}></i>
+                </button>
                 {errors.password && <div className="invalid-feedback">{errors.password.message}</div>}
               </div>
             </div>
