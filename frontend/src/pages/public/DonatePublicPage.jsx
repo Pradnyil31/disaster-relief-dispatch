@@ -97,10 +97,20 @@ export function DonatePublicPage() {
       {/* Navbar */}
       <nav className="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm glass">
         <div className="container max-w-6xl">
-          <Link className="navbar-brand d-flex align-items-center gap-2 fw-bold" to="/">
-            <i className="bi bi-shield-heart text-warning"></i>
-            <span>Disaster Relief Coordinator</span>
-          </Link>
+          <div className="d-flex align-items-center gap-2">
+            <Link
+              to="/"
+              className="btn btn-outline-light btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1 border-white-50 shadow-none hover-lift"
+              title="Back to Landing Page"
+            >
+              <i className="bi bi-arrow-left"></i>
+              <span className="d-none d-sm-inline">Back</span>
+            </Link>
+            <Link className="navbar-brand d-flex align-items-center gap-2 fw-bold mb-0" to="/">
+              <i className="bi bi-shield-heart text-warning"></i>
+              <span>Disaster Relief Coordinator</span>
+            </Link>
+          </div>
           <div className="navbar-nav ms-auto align-items-center gap-2">
             {user ? (
               <Link
@@ -120,6 +130,18 @@ export function DonatePublicPage() {
       </nav>
 
       <main className="container max-w-4xl py-4">
+        {/* Back Button */}
+        <div className="mb-3">
+          <Link
+            to="/"
+            className="btn btn-white btn-sm rounded-pill px-3 py-2 text-dark border shadow-sm d-inline-flex align-items-center gap-2 hover-lift fw-semibold text-decoration-none"
+            style={{ backgroundColor: '#ffffff' }}
+          >
+            <i className="bi bi-arrow-left text-primary fs-6"></i>
+            <span>Back to Home</span>
+          </Link>
+        </div>
+
         {/* Header */}
         <div className="text-center mb-4">
           <div className="d-inline-flex align-items-center justify-content-center p-3 mb-2 rounded-circle bg-success bg-opacity-10 text-success" style={{ width: '64px', height: '64px' }}>
@@ -189,6 +211,9 @@ export function DonatePublicPage() {
                     Create Donor Account
                   </Link>
                 )}
+                <Link to="/" className="btn btn-outline-secondary rounded-pill px-4">
+                  Back to Home
+                </Link>
               </div>
             </div>
           </div>
