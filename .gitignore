@@ -30,6 +30,8 @@ yarn-error.log*
 !.vscode/extensions.json
 .idea/
 .kilo/
+.postman/
+postman/globals/
 *.suo
 *.ntvs*
 *.njsproj

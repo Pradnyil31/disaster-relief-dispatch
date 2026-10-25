@@ -7,10 +7,12 @@
     { "key": "citizenToken", "value": "", "enabled": true },
     { "key": "adminToken", "value": "", "enabled": true },
     { "key": "volunteerToken", "value": "", "enabled": true },
-    { "key": "sosId", "value": "", "enabled": true },
-    { "key": "dispatchId", "value": "", "enabled": true },
-    { "key": "inventoryId", "value": "", "enabled": true },
-    { "key": "donationId", "value": "", "enabled": true }
-  ],
-  "_postman_variable_scope": "environment"
+    { "key": "donorToken", "value": "", "enabled": true },
+    { "key": "sosId", "value": "1", "enabled": true },
+    { "key": "dispatchId", "value": "1", "enabled": true },
+    { "key": "inventoryId", "value": "1", "enabled": true },
+    { "key": "donationId", "value": "1", "enabled": true },
+    { "key": "monetaryDonationId", "value": "1", "enabled": true },
+    { "key": "managedUserId", "value": "3", "enabled": true }
+  ]
 }

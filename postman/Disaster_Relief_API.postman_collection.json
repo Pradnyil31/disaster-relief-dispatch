@@ -1,16 +1,102 @@
 {
   "info": {
-    "_postman_id": "disaster-relief-coordinator-api-v1",
+    "_postman_id": "disaster-relief-coordinator-api-v2",
     "name": "Disaster Relief Coordinator API",
-    "description": "Complete Postman Collection covering all 5 modules of the Disaster Relief Coordinator Backend",
+    "description": "Complete Postman Collection covering all 8 modules of the Disaster Relief Coordinator Backend with automated token chaining and schema validation",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api/v1", "type": "string" },
+    { "key": "adminToken", "value": "", "type": "string" },
+    { "key": "volunteerToken", "value": "", "type": "string" },
+    { "key": "citizenToken", "value": "", "type": "string" },
+    { "key": "donorToken", "value": "", "type": "string" },
+    { "key": "citizenEmail", "value": "", "type": "string" },
+    { "key": "donorEmail", "value": "", "type": "string" },
+    { "key": "sosId", "value": "1", "type": "string" },
+    { "key": "inventoryId", "value": "1", "type": "string" },
+    { "key": "dispatchId", "value": "1", "type": "string" },
+    { "key": "donationId", "value": "1", "type": "string" },
+    { "key": "monetaryDonationId", "value": "1", "type": "string" },
+    { "key": "managedUserId", "value": "3", "type": "string" }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const baseUrl = pm.collectionVariables.get('baseUrl') || pm.environment.get('baseUrl') || 'http://localhost:8080/api/v1';",
+          "const headers = JSON.stringify(pm.request.headers || {});",
+          "",
+          "// Auto-login for Admin if token is missing",
+          "if (headers.includes('adminToken') && !pm.collectionVariables.get('adminToken') && !pm.environment.get('adminToken')) {",
+          "    pm.sendRequest({",
+          "        url: baseUrl + '/auth/login',",
+          "        method: 'POST',",
+          "        header: { 'Content-Type': 'application/json' },",
+          "        body: { mode: 'raw', raw: JSON.stringify({ email: 'admin@example.com', password: 'admin123' }) }",
+          "    }, function (err, res) {",
+          "        if (!err && res.code === 200) {",
+          "            const data = res.json();",
+          "            pm.collectionVariables.set('adminToken', data.token);",
+          "            pm.environment.set('adminToken', data.token);",
+          "        }",
+          "    });",
+          "}",
+          "",
+          "// Auto-login for Volunteer if token is missing",
+          "if (headers.includes('volunteerToken') && !pm.collectionVariables.get('volunteerToken') && !pm.environment.get('volunteerToken')) {",
+          "    pm.sendRequest({",
+          "        url: baseUrl + '/auth/login',",
+          "        method: 'POST',",
+          "        header: { 'Content-Type': 'application/json' },",
+          "        body: { mode: 'raw', raw: JSON.stringify({ email: 'volunteer@example.com', password: 'volunteer123' }) }",
+          "    }, function (err, res) {",
+          "        if (!err && res.code === 200) {",
+          "            const data = res.json();",
+          "            pm.collectionVariables.set('volunteerToken', data.token);",
+          "            pm.environment.set('volunteerToken', data.token);",
+          "        }",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ],
   "item": [
     {
       "name": "01. Authentication (IAM)",
       "item": [
         {
           "name": "Register Citizen User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const email = 'citizen_' + Date.now() + '@example.com';",
+                  "pm.collectionVariables.set('citizenEmail', email);",
+                  "pm.environment.set('citizenEmail', email);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "    pm.collectionVariables.set('citizenToken', res.token);",
+                  "    pm.environment.set('citizenToken', res.token);",
+                  "    console.log('✅ citizenToken saved from register');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -18,13 +104,30 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Jane Citizen\",\n  \"email\": \"citizen@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"CITIZEN\",\n  \"phone\": \"+1234567890\"\n}"
+              "raw": "{\n  \"name\": \"Jane Citizen\",\n  \"email\": \"{{citizenEmail}}\",\n  \"password\": \"password123\",\n  \"role\": \"CITIZEN\",\n  \"phone\": \"9876543210\"\n}",
+              "options": { "raw": { "language": "json" } }
             },
             "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
           }
         },
         {
-          "name": "Register Admin User",
+          "name": "Login Citizen User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "    pm.collectionVariables.set('citizenToken', res.token);",
+                  "    pm.environment.set('citizenToken', res.token);",
+                  "    console.log('✅ citizenToken refreshed from login');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -32,13 +135,27 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"System Administrator\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"adminpassword123\",\n  \"role\": \"ADMINISTRATOR\",\n  \"phone\": \"+19998887777\"\n}"
+              "raw": "{\n  \"email\": \"{{citizenEmail}}\",\n  \"password\": \"password123\"\n}",
+              "options": { "raw": { "language": "json" } }
             },
-            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
           }
         },
         {
           "name": "Register Volunteer User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Volunteer registered', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -46,13 +163,30 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Volunteer Hero\",\n  \"email\": \"volunteer@example.com\",\n  \"password\": \"volpass123\",\n  \"role\": \"VOLUNTEER\",\n  \"phone\": \"+18883334444\"\n}"
+              "raw": "{\n  \"name\": \"Raj Volunteer\",\n  \"email\": \"volunteer_{{$timestamp}}@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"VOLUNTEER\",\n  \"phone\": \"9888899999\",\n  \"zone\": \"North Zone\"\n}",
+              "options": { "raw": { "language": "json" } }
             },
             "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
           }
         },
         {
-          "name": "Login User",
+          "name": "Login Volunteer User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "    pm.collectionVariables.set('volunteerToken', res.token);",
+                  "    pm.environment.set('volunteerToken', res.token);",
+                  "    console.log('✅ volunteerToken saved');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -60,7 +194,112 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"citizen@example.com\",\n  \"password\": \"password123\"\n}"
+              "raw": "{\n  \"email\": \"volunteer@example.com\",\n  \"password\": \"volunteer123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Register Donor User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const email = 'donor_' + Date.now() + '@example.com';",
+                  "pm.collectionVariables.set('donorEmail', email);",
+                  "pm.environment.set('donorEmail', email);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "    pm.collectionVariables.set('donorToken', res.token);",
+                  "    pm.environment.set('donorToken', res.token);",
+                  "    console.log('✅ donorToken saved from register');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dave Donor\",\n  \"email\": \"{{donorEmail}}\",\n  \"password\": \"password123\",\n  \"role\": \"DONOR\",\n  \"phone\": \"9777712345\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Login Donor User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "    pm.collectionVariables.set('donorToken', res.token);",
+                  "    pm.environment.set('donorToken', res.token);",
+                  "    console.log('✅ donorToken refreshed from login');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{donorEmail}}\",\n  \"password\": \"password123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login Admin User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "    pm.collectionVariables.set('adminToken', res.token);",
+                  "    pm.environment.set('adminToken', res.token);",
+                  "    console.log('✅ adminToken saved');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}",
+              "options": { "raw": { "language": "json" } }
             },
             "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
           }
@@ -89,6 +328,21 @@
         },
         {
           "name": "Submit Web SOS Request (Citizen)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) {",
+                  "    pm.collectionVariables.set('sosId', res.id);",
+                  "    pm.environment.set('sosId', res.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -97,7 +351,8 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"urgencyLevel\": \"HIGH\",\n  \"latitude\": 37.7749,\n  \"longitude\": -122.4194,\n  \"locationAddress\": \"123 Main St, Sector 4\",\n  \"suppliesNeeded\": \"Water, First Aid Kit, Blankets\"\n}"
+              "raw": "{\n  \"urgencyLevel\": \"HIGH\",\n  \"latitude\": 19.076,\n  \"longitude\": 72.8777,\n  \"locationName\": \"123 Main St, Sector 4\",\n  \"requiredSupplies\": [\"WATER_AND_HYDRATION\", \"FOOD_AND_RATIONS\"],\n  \"citizenPhone\": \"9876543210\",\n  \"notes\": \"Family stranded on roof.\"\n}",
+              "options": { "raw": { "language": "json" } }
             },
             "url": { "raw": "{{baseUrl}}/sos", "host": ["{{baseUrl}}"], "path": ["sos"] }
           }
@@ -121,6 +376,32 @@
             ],
             "url": { "raw": "{{baseUrl}}/sos/my", "host": ["{{baseUrl}}"], "path": ["sos", "my"] }
           }
+        },
+        {
+          "name": "Get Single SOS Request By ID (Admin/Citizen)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/sos/{{sosId}}", "host": ["{{baseUrl}}"], "path": ["sos", "{{sosId}}"] }
+          }
+        },
+        {
+          "name": "Update SOS Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ASSIGNED\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/sos/{{sosId}}/status", "host": ["{{baseUrl}}"], "path": ["sos", "{{sosId}}", "status"] }
+          }
         }
       ]
     },
@@ -129,6 +410,21 @@
       "item": [
         {
           "name": "Create Inventory Item (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) {",
+                  "    pm.collectionVariables.set('inventoryId', res.id);",
+                  "    pm.environment.set('inventoryId', res.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -137,7 +433,8 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"First Aid Kit\",\n  \"category\": \"MEDICAL\",\n  \"quantity\": 150,\n  \"unit\": \"boxes\",\n  \"minimumThreshold\": 20\n}"
+              "raw": "{\n  \"name\": \"Emergency First Aid Kit {{$timestamp}}\",\n  \"category\": \"MEDICAL_SUPPLIES\",\n  \"quantity\": 150,\n  \"minimumThreshold\": 20\n}",
+              "options": { "raw": { "language": "json" } }
             },
             "url": { "raw": "{{baseUrl}}/inventory", "host": ["{{baseUrl}}"], "path": ["inventory"] }
           }
@@ -153,6 +450,32 @@
           }
         },
         {
+          "name": "Get Inventory Item By ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/inventory/{{inventoryId}}", "host": ["{{baseUrl}}"], "path": ["inventory", "{{inventoryId}}"] }
+          }
+        },
+        {
+          "name": "Update Inventory Item (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Emergency First Aid Kit (Updated)\",\n  \"category\": \"MEDICAL_SUPPLIES\",\n  \"quantity\": 200,\n  \"minimumThreshold\": 30\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/inventory/{{inventoryId}}", "host": ["{{baseUrl}}"], "path": ["inventory", "{{inventoryId}}"] }
+          }
+        },
+        {
           "name": "Filter Low-Stock Alert Items (Admin)",
           "request": {
             "method": "GET",
@@ -165,10 +488,66 @@
       ]
     },
     {
-      "name": "04. Volunteer Dispatch",
+      "name": "04. Volunteer Management",
+      "item": [
+        {
+          "name": "Get All Volunteers (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/volunteers", "host": ["{{baseUrl}}"], "path": ["volunteers"] }
+          }
+        },
+        {
+          "name": "Filter Available Volunteers (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/volunteers?status=AVAILABLE", "host": ["{{baseUrl}}"], "path": ["volunteers"], "query": [{ "key": "status", "value": "AVAILABLE" }] }
+          }
+        },
+        {
+          "name": "Update Volunteer Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"AVAILABLE\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/volunteers/3/status", "host": ["{{baseUrl}}"], "path": ["volunteers", "3", "status"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05. Volunteer Dispatch",
       "item": [
         {
           "name": "Create Dispatch Task (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) {",
+                  "    pm.collectionVariables.set('dispatchId', res.id);",
+                  "    pm.environment.set('dispatchId', res.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -177,9 +556,20 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"sosRequestId\": 1,\n  \"volunteerId\": 3,\n  \"inventoryItemId\": 1,\n  \"quantityDeducted\": 15,\n  \"notes\": \"Deliver 15 ration packs urgently.\"\n}"
+              "raw": "{\n  \"sosRequestId\": {{sosId}},\n  \"volunteerId\": 3,\n  \"inventoryAllocations\": [\n    {\n      \"inventoryItemId\": 1,\n      \"quantityDeducted\": 2\n    }\n  ],\n  \"notes\": \"Deliver emergency relief kits urgently.\"\n}",
+              "options": { "raw": { "language": "json" } }
             },
             "url": { "raw": "{{baseUrl}}/dispatch", "host": ["{{baseUrl}}"], "path": ["dispatch"] }
+          }
+        },
+        {
+          "name": "Get All Dispatch Tasks (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/dispatch?page=0&size=10", "host": ["{{baseUrl}}"], "path": ["dispatch"] }
           }
         },
         {
@@ -193,6 +583,16 @@
           }
         },
         {
+          "name": "Get Dispatch Task By ID (Admin/Volunteer)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{volunteerToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/dispatch/{{dispatchId}}", "host": ["{{baseUrl}}"], "path": ["dispatch", "{{dispatchId}}"] }
+          }
+        },
+        {
           "name": "Update Task Status to EN_ROUTE (Volunteer)",
           "request": {
             "method": "PATCH",
@@ -202,9 +602,10 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"EN_ROUTE\",\n  \"notes\": \"Picked up supplies, heading to location.\"\n}"
+              "raw": "{\n  \"status\": \"EN_ROUTE\",\n  \"notes\": \"Picked up relief supplies, heading to site.\"\n}",
+              "options": { "raw": { "language": "json" } }
             },
-            "url": { "raw": "{{baseUrl}}/dispatch/1/status", "host": ["{{baseUrl}}"], "path": ["dispatch", "1", "status"] }
+            "url": { "raw": "{{baseUrl}}/dispatch/{{dispatchId}}/status", "host": ["{{baseUrl}}"], "path": ["dispatch", "{{dispatchId}}", "status"] }
           }
         },
         {
@@ -217,32 +618,75 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"DELIVERED\",\n  \"notes\": \"Successfully delivered supplies to citizen.\"\n}"
+              "raw": "{\n  \"status\": \"DELIVERED\",\n  \"notes\": \"Supplies handed over to family safely.\"\n}",
+              "options": { "raw": { "language": "json" } }
             },
-            "url": { "raw": "{{baseUrl}}/dispatch/1/status", "host": ["{{baseUrl}}"], "path": ["dispatch", "1", "status"] }
+            "url": { "raw": "{{baseUrl}}/dispatch/{{dispatchId}}/status", "host": ["{{baseUrl}}"], "path": ["dispatch", "{{dispatchId}}", "status"] }
           }
         }
       ]
     },
     {
-      "name": "05. Donations & Payments",
+      "name": "06. Donations & Payments",
       "item": [
         {
-          "name": "Pledge Monetary Donation",
+          "name": "Pledge Monetary Donation (Authenticated Donor)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) {",
+                  "    pm.collectionVariables.set('monetaryDonationId', res.id);",
+                  "    pm.environment.set('monetaryDonationId', res.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
+              { "key": "Authorization", "value": "Bearer {{donorToken}}" },
               { "key": "Content-Type", "value": "application/json" }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"type\": \"MONEY\",\n  \"amount\": 5000.00\n}"
+              "raw": "{\n  \"type\": \"MONEY\",\n  \"amount\": 5000.00\n}",
+              "options": { "raw": { "language": "json" } }
             },
             "url": { "raw": "{{baseUrl}}/donations/pledge", "host": ["{{baseUrl}}"], "path": ["donations", "pledge"] }
           }
         },
         {
-          "name": "Pledge Relief Goods Supply Donation",
+          "name": "Get My Donations (Donor)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{donorToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/donations/my", "host": ["{{baseUrl}}"], "path": ["donations", "my"] }
+          }
+        },
+        {
+          "name": "Pledge Relief Goods Supply Donation (Public/Donor)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) {",
+                  "    pm.collectionVariables.set('donationId', res.id);",
+                  "    pm.environment.set('donationId', res.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -250,9 +694,20 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"type\": \"GOODS\",\n  \"itemName\": \"Heavy Duty Blankets\",\n  \"quantity\": 50\n}"
+              "raw": "{\n  \"type\": \"GOODS\",\n  \"itemName\": \"Heavy Duty Blankets\",\n  \"category\": \"SHELTER_AND_BLANKETS\",\n  \"quantity\": 50\n}",
+              "options": { "raw": { "language": "json" } }
             },
             "url": { "raw": "{{baseUrl}}/donations/pledge", "host": ["{{baseUrl}}"], "path": ["donations", "pledge"] }
+          }
+        },
+        {
+          "name": "Get All Donations (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/donations", "host": ["{{baseUrl}}"], "path": ["donations"] }
           }
         },
         {
@@ -262,7 +717,89 @@
             "header": [
               { "key": "Authorization", "value": "Bearer {{adminToken}}" }
             ],
-            "url": { "raw": "{{baseUrl}}/donations/2/approve", "host": ["{{baseUrl}}"], "path": ["donations", "2", "approve"] }
+            "url": { "raw": "{{baseUrl}}/donations/{{donationId}}/approve", "host": ["{{baseUrl}}"], "path": ["donations", "{{donationId}}", "approve"] }
+          }
+        },
+        {
+          "name": "Verify Monetary Payment (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/donations/{{monetaryDonationId}}/verify-payment", "host": ["{{baseUrl}}"], "path": ["donations", "{{monetaryDonationId}}", "verify-payment"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "07. Admin User Management",
+      "item": [
+        {
+          "name": "Get All System Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/admin/users?page=0&size=20", "host": ["{{baseUrl}}"], "path": ["admin", "users"], "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }] }
+          }
+        },
+        {
+          "name": "Filter Users by Role (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/admin/users?role=VOLUNTEER&page=0&size=20", "host": ["{{baseUrl}}"], "path": ["admin", "users"], "query": [{ "key": "role", "value": "VOLUNTEER" }, { "key": "page", "value": "0" }, { "key": "size", "value": "20" }] }
+          }
+        },
+        {
+          "name": "Create User Account (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) {",
+                  "    pm.collectionVariables.set('managedUserId', res.id);",
+                  "    pm.environment.set('managedUserId', res.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Field Officer\",\n  \"email\": \"officer_{{$timestamp}}@example.com\",\n  \"password\": \"OfficerPass@123\",\n  \"role\": \"VOLUNTEER\",\n  \"phone\": \"9811223344\",\n  \"zone\": \"North Relief Sector\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/admin/users", "host": ["{{baseUrl}}"], "path": ["admin", "users"] }
+          }
+        },
+        {
+          "name": "Update User Details (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Field Officer (Promoted)\",\n  \"role\": \"VOLUNTEER\",\n  \"phone\": \"9811223355\",\n  \"zone\": \"Central Command\",\n  \"isActive\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/admin/users/{{managedUserId}}", "host": ["{{baseUrl}}"], "path": ["admin", "users", "{{managedUserId}}"] }
           }
         }
       ]
