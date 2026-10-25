@@ -123,3 +123,63 @@ button {
   animation: shimmer 2s infinite linear forwards;
   border-radius: 4px;
 }
+
+/* Print Media Queries for Official Contribution Receipts */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #111827 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 11pt !important;
+  }
+
+  /* Hide background elements, navigation, and modal action buttons */
+  nav,
+  main,
+  footer,
+  .no-print,
+  .btn,
+  .btn-close,
+  .navbar,
+  .modal-header.no-print,
+  .modal-footer.no-print {
+    display: none !important;
+  }
+
+  /* Remove dark modal overlay and reposition modal content as clean document */
+  .modal {
+    position: static !important;
+    display: block !important;
+    background: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
+  .modal-dialog {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    transform: none !important;
+  }
+
+  .modal-content {
+    border: 2px solid #0d6efd !important;
+    box-shadow: none !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    padding: 0 !important;
+  }
+
+  .modal-body {
+    padding: 24px 28px !important;
+  }
+}

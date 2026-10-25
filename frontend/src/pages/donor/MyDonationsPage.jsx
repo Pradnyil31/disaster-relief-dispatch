@@ -175,9 +175,10 @@ export function MyDonationsPage() {
       {/* Printable Receipt Modal */}
       {selectedReceipt && (
         <div className="modal d-block bg-dark bg-opacity-75" tabIndex="-1">
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content border-0 shadow-lg rounded-3">
-              <div className="modal-header bg-primary text-white py-3">
+          <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '640px' }}>
+            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+              {/* Screen Modal Header - Hidden in Print */}
+              <div className="modal-header bg-primary text-white py-3 px-4 no-print">
                 <h5 className="modal-title fw-bold d-flex align-items-center gap-2">
                   <i className="bi bi-shield-check text-warning"></i> Contribution Receipt
                 </h5>
@@ -188,58 +189,112 @@ export function MyDonationsPage() {
                 ></button>
               </div>
 
-              <div className="modal-body p-4">
-                <div className="text-center mb-4 pb-3 border-bottom">
-                  <h4 className="fw-bolder text-dark mb-1">Disaster Relief Coordinator</h4>
-                  <span className="fs-7 text-muted">Official Contribution Acknowledgment</span>
-                </div>
-
-                <div className="mb-3">
-                  <div className="d-flex justify-content-between fs-7 border-bottom pb-1 mb-2">
-                    <span className="text-muted">Receipt Number:</span>
-                    <strong className="text-primary font-monospace">{selectedReceipt.id}</strong>
-                  </div>
-                  <div className="d-flex justify-content-between fs-7 border-bottom pb-1 mb-2">
-                    <span className="text-muted">Donor Name:</span>
-                    <strong className="text-dark">{selectedReceipt.donorName || user?.name}</strong>
-                  </div>
-                  <div className="d-flex justify-content-between fs-7 border-bottom pb-1 mb-2">
-                    <span className="text-muted">Donor Email:</span>
-                    <span className="text-dark">{selectedReceipt.donorEmail || user?.email}</span>
-                  </div>
-                  <div className="d-flex justify-content-between fs-7 border-bottom pb-1 mb-2">
-                    <span className="text-muted">Contribution Type:</span>
-                    <span className="badge bg-light text-dark border">{selectedReceipt.type === 'GOODS' ? 'Goods Pledge' : 'Monetary Contribution'}</span>
-                  </div>
-                  {selectedReceipt.type === 'GOODS' ? (
-                    <div className="d-flex justify-content-between fs-7 border-bottom pb-1 mb-2">
-                      <span className="text-muted">Pledged Item & Quantity:</span>
-                      <strong className="text-dark">{selectedReceipt.quantity} units of {selectedReceipt.itemName}</strong>
+              <div className="modal-body p-4 p-md-5 bg-white">
+                {/* Official Organization Header */}
+                <div className="d-flex align-items-center justify-content-between border-bottom pb-3 mb-4">
+                  <div className="d-flex align-items-center gap-3">
+                    <div
+                      className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                      style={{ width: '48px', height: '48px', minWidth: '48px' }}
+                    >
+                      <i className="bi bi-shield-check fs-4 text-warning"></i>
                     </div>
-                  ) : (
-                    <>
-                      <div className="d-flex justify-content-between fs-7 border-bottom pb-1 mb-2">
-                        <span className="text-muted">Amount Donated:</span>
-                        <strong className="text-success fs-6">₹{selectedReceipt.amount?.toLocaleString()}</strong>
-                      </div>
-                      <div className="d-flex justify-content-between fs-7 border-bottom pb-1 mb-2">
-                        <span className="text-muted">Transaction Reference:</span>
-                        <span className="font-monospace text-dark">{selectedReceipt.transactionRef}</span>
-                      </div>
-                    </>
-                  )}
-                  <div className="d-flex justify-content-between fs-7">
-                    <span className="text-muted">Status:</span>
-                    <span className="badge bg-success">{selectedReceipt.status}</span>
+                    <div>
+                      <h4 className="fw-bolder text-dark mb-0">Disaster Relief Operations</h4>
+                      <span className="fs-8 text-muted text-uppercase fw-semibold">Official Contribution & Donation Acknowledgment</span>
+                    </div>
+                  </div>
+                  <div className="text-end">
+                    <span className="badge bg-primary fs-7 px-3 py-1 font-monospace">#{selectedReceipt.id}</span>
+                    <div className="fs-8 text-muted mt-1">{formatDate(selectedReceipt.createdAt || new Date())}</div>
                   </div>
                 </div>
 
-                <div className="alert alert-light border fs-7 text-center text-muted mb-0">
-                  Thank you for empowering disaster relief operations.
+                {/* Donor Particulars Box */}
+                <div className="bg-light p-3 rounded-3 mb-3 border">
+                  <div className="row g-2">
+                    <div className="col-6">
+                      <span className="text-muted fs-8 text-uppercase fw-semibold d-block">Donor Name</span>
+                      <strong className="text-dark fs-6">{selectedReceipt.donorName || user?.name || 'Valued Contributor'}</strong>
+                    </div>
+                    <div className="col-6">
+                      <span className="text-muted fs-8 text-uppercase fw-semibold d-block">Donor Email</span>
+                      <span className="text-dark fs-7">{selectedReceipt.donorEmail || user?.email || 'N/A'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contribution Itemized Table */}
+                <div className="table-responsive mb-3">
+                  <table className="table table-bordered align-middle mb-0">
+                    <thead className="table-light fs-8 text-uppercase text-muted">
+                      <tr>
+                        <th>Contribution Category</th>
+                        <th>Specifics</th>
+                        <th className="text-end">Quantity / Amount</th>
+                        <th className="text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="fw-semibold fs-7">
+                          {selectedReceipt.type === 'GOODS' ? 'Goods & Relief Supplies' : 'Financial Aid Contribution'}
+                        </td>
+                        <td className="fs-7">
+                          {selectedReceipt.type === 'GOODS' ? (
+                            <div>
+                              <strong>{selectedReceipt.itemName}</strong>
+                              <div className="fs-8 text-muted">Relief Warehouse Stock</div>
+                            </div>
+                          ) : (
+                            <div>
+                              <strong>Emergency Relief Fund</strong>
+                              <div className="fs-8 text-muted font-monospace">Ref: {selectedReceipt.transactionRef}</div>
+                            </div>
+                          )}
+                        </td>
+                        <td className="text-end fw-bold fs-6">
+                          {selectedReceipt.type === 'GOODS' ? (
+                            `${selectedReceipt.quantity} units`
+                          ) : (
+                            <span className="text-success">₹{selectedReceipt.amount?.toLocaleString()}</span>
+                          )}
+                        </td>
+                        <td className="text-center">
+                          <span className={`badge ${selectedReceipt.status === 'VERIFIED' || selectedReceipt.status === 'APPROVED' ? 'bg-success' : 'bg-warning text-dark'} px-2 py-1`}>
+                            {selectedReceipt.status}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Official Electronic Verification Acknowledgment */}
+                <div className="p-3 bg-light rounded-3 border mb-4 text-center">
+                  <p className="fs-8 text-muted mb-0">
+                    <i className="bi bi-patch-check-fill text-primary me-1"></i>
+                    This document serves as an official electronic acknowledgment issued by the Emergency Resource & Disaster Relief Dispatch Network. Thank you for your vital contribution towards humanitarian aid.
+                  </p>
+                </div>
+
+                {/* Authorized Signature Block */}
+                <div className="d-flex justify-content-between align-items-end pt-3 border-top">
+                  <div className="fs-8 text-muted">
+                    <div>Authority: <strong>Relief Dispatch Operations Network</strong></div>
+                    <div>Verification: <strong>Digital System Certified</strong></div>
+                  </div>
+                  <div className="text-end">
+                    <div className="fw-bold text-dark fs-7 border-bottom pb-1" style={{ minWidth: '150px' }}>
+                      Pradnyil Patil
+                    </div>
+                    <span className="fs-8 text-muted">Operations Coordinator</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="modal-footer bg-light py-2">
+              {/* Screen Modal Footer - Hidden in Print */}
+              <div className="modal-footer bg-light py-2 px-4 no-print">
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm px-3 rounded-pill"
@@ -249,7 +304,7 @@ export function MyDonationsPage() {
                 </button>
                 <button
                   type="button"
-                  className="btn btn-primary btn-sm px-4 rounded-pill fw-bold"
+                  className="btn btn-primary btn-sm px-4 rounded-pill fw-bold hover-lift"
                   onClick={handlePrint}
                 >
                   <i className="bi bi-printer me-1"></i> Print Receipt
