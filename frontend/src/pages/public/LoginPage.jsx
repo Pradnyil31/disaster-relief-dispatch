@@ -106,10 +106,7 @@ export function LoginPage() {
             </div>
             
             <div className="mb-4">
-              <div className="d-flex justify-content-between">
-                <label htmlFor="password" className="form-label">Password</label>
-                <a href="#" className="text-primary small fw-medium text-decoration-none">Forgot password?</a>
-              </div>
+              <label htmlFor="password" className="form-label">Password</label>
               <div className="position-relative">
                 <i className="bi bi-lock position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
                 <input
